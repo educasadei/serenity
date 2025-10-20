@@ -1056,7 +1056,7 @@ int unveil(char const* path, char const* permissions)
 // https://pubs.opengroup.org/onlinepubs/7908799/xsh/getpass.html
 char* getpass(char const* prompt)
 {
-    int tty = open("/dev/tty", O_RDWR | O_NOCTTY | O_CLOEXEC);
+    int tty = open("/dev/tty/self", O_RDWR | O_NOCTTY | O_CLOEXEC);
     if (tty < 0)
         return nullptr;
 

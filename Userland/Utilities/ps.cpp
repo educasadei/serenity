@@ -169,7 +169,7 @@ static ErrorOr<String> parse_tty_pseudo_name(StringView tty_name)
         auto tty_device_type = tty_name_parts[0];
         auto tty_number = tty_name_parts[1];
         if (tty_device_type == "tty"sv)
-            tty_full_name = TRY(String::formatted("/dev/tty{}", tty_number));
+            tty_full_name = TRY(String::formatted("/dev/tty/{}", tty_number));
         else if (tty_device_type == "pts"sv)
             tty_full_name = TRY(String::formatted("/dev/pts/{}", tty_number));
         else

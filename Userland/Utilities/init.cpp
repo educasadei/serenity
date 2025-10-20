@@ -106,6 +106,9 @@ static ErrorOr<void> prepare_tmpfs_system_devicemap_directory()
 
 static ErrorOr<void> prepare_bare_minimum_devtmpfs_directory_structure()
 {
+    TRY(Core::System::mkdir("/dev/tty"sv, 0755));
+    TRY(Core::System::mkdir("/dev/serial"sv, 0755));
+    TRY(Core::System::mkdir("/dev/storage"sv, 0755));
     TRY(Core::System::mkdir("/dev/audio"sv, 0755));
     TRY(Core::System::mkdir("/dev/input"sv, 0755));
     TRY(Core::System::mkdir("/dev/input/keyboard"sv, 0755));
@@ -128,7 +131,7 @@ static ErrorOr<void> prepare_bare_minimum_devtmpfs_directory_structure()
     TRY(populate_device_node_with_symlink(DeviceNodeType::Character, "/dev/random"sv, 0666, to_underlying(Kernel::MajorAllocation::CharacterDeviceFamily::Generic), 8));
     TRY(populate_device_node_with_symlink(DeviceNodeType::Character, "/dev/console"sv, 0666, to_underlying(Kernel::MajorAllocation::CharacterDeviceFamily::Console), 1));
     TRY(populate_device_node_with_symlink(DeviceNodeType::Character, "/dev/ptmx"sv, 0666, to_underlying(Kernel::MajorAllocation::CharacterDeviceFamily::Console), 2));
-    TRY(populate_device_node_with_symlink(DeviceNodeType::Character, "/dev/tty"sv, 0666, to_underlying(Kernel::MajorAllocation::CharacterDeviceFamily::Console), 0));
+    TRY(populate_device_node_with_symlink(DeviceNodeType::Character, "/dev/tty/self"sv, 0666, to_underlying(Kernel::MajorAllocation::CharacterDeviceFamily::Console), 0));
     TRY(populate_device_node_with_symlink(DeviceNodeType::Character, "/dev/fuse"sv, 0666, to_underlying(Kernel::MajorAllocation::CharacterDeviceFamily::Generic), 229));
 #ifdef ENABLE_KERNEL_COVERAGE_COLLECTION
     TRY(populate_device_node_with_symlink(DeviceNodeType::Block, "/dev/kcov"sv, 0666, to_underlying(Kernel::MajorAllocation::BlockDeviceFamily::KCOV), 0));

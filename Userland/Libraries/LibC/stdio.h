@@ -31,7 +31,7 @@ __BEGIN_DECLS
 #define _IOLBF 1
 #define _IONBF 2
 
-#define L_ctermid 9
+#define L_ctermid 14
 #define L_tmpnam 256
 #define P_tmpdir "/tmp"
 

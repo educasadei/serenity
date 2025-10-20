@@ -16,7 +16,7 @@
 #include <LibURL/URL.h>
 #include <fcntl.h>
 
-static constexpr auto SPICE_DEVICE = "/dev/hvc0p1"sv;
+static constexpr auto SPICE_DEVICE = "/dev/serial/virtio1"sv;
 
 ErrorOr<int> serenity_main(Main::Arguments arguments)
 {

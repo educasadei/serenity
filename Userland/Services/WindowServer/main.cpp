@@ -30,7 +30,7 @@ ErrorOr<int> serenity_main(Main::Arguments)
     TRY(Core::System::unveil("/tmp", "cw"));
     TRY(Core::System::unveil("/etc/WindowServer.ini", "rwc"));
     TRY(Core::System::unveil("/etc/Keyboard.ini", "r"));
-    TRY(Core::System::unveil("/dev/tty", "rw"));
+    TRY(Core::System::unveil("/dev/tty/self", "rw"));
     TRY(Core::System::unveil("/dev/gpu/", "rw"));
     TRY(Core::System::unveil("/dev/input/", "rw"));
     TRY(Core::System::unveil("/bin/keymap", "x"));
@@ -66,7 +66,7 @@ ErrorOr<int> serenity_main(Main::Arguments)
     {
         // FIXME: Map switched tty from screens.
         // FIXME: Gracefully cleanup the TTY graphics mode.
-        int tty_fd = TRY(Core::System::open("/dev/tty"sv, O_RDWR));
+        int tty_fd = TRY(Core::System::open("/dev/tty/self"sv, O_RDWR));
         TRY(Core::System::ioctl(tty_fd, KDSETMODE, KD_GRAPHICS));
         TRY(Core::System::close(tty_fd));
     }

@@ -1326,7 +1326,7 @@ FILE* tmpfile()
 // https://pubs.opengroup.org/onlinepubs/9699919799/functions/ctermid.html
 char* ctermid(char* s)
 {
-    static char tty_path[L_ctermid] = "/dev/tty";
+    static char tty_path[L_ctermid] = "/dev/tty/self";
     if (s)
         return strcpy(s, tty_path);
     return tty_path;

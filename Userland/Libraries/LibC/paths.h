@@ -13,4 +13,4 @@
 #define _PATH_MOUNTED "/etc/mtab"
 
 // Default value used for lowdown port.
-#define _PATH_TTY "/dev/tty"
+#define _PATH_TTY "/dev/tty/self"
