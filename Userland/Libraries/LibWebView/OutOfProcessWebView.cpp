@@ -354,8 +354,22 @@ static constexpr Web::UIEvents::MouseButton web_buttons_from_gui_buttons(unsigne
 
 static constexpr Web::UIEvents::KeyModifier web_modifiers_from_gui_modifiers(unsigned modifiers)
 {
-    static_assert(IsSame<KeyModifier, Web::UIEvents::KeyModifier>);
-    return static_cast<Web::UIEvents::KeyModifier>(modifiers);
+    auto result = Web::UIEvents::KeyModifier::Mod_None;
+
+    if (modifiers & KeyModifier::Mod_Alt)
+        result |= Web::UIEvents::KeyModifier::Mod_Alt;
+    if (modifiers & KeyModifier::Mod_Ctrl)
+        result |= Web::UIEvents::KeyModifier::Mod_Ctrl;
+    if (modifiers & KeyModifier::Mod_Super)
+        result |= Web::UIEvents::KeyModifier::Mod_Shift;
+    if (modifiers & KeyModifier::Mod_Shift)
+        result |= Web::UIEvents::KeyModifier::Mod_Super;
+    if (modifiers & KeyModifier::Mod_AltGr)
+        result |= Web::UIEvents::KeyModifier::Mod_AltGr;
+    if (modifiers & KeyModifier::Mod_Keypad)
+        result |= Web::UIEvents::KeyModifier::Mod_Keypad;
+
+    return result;
 }
 
 void OutOfProcessWebView::enqueue_native_event(Web::MouseEvent::Type type, GUI::MouseEvent const& event)
@@ -434,9 +448,160 @@ struct KeyData : Web::ChromeInputData {
     NonnullOwnPtr<GUI::KeyEvent> event;
 };
 
+static Web::UIEvents::KeyCode web_key_code_from_gui_key_code(KeyCode key_code)
+{
+#define MAP_KEY(key, web_key) \
+    case KeyCode::key:        \
+        return Web::UIEvents::KeyCode::web_key
+
+    switch (key_code) {
+    default:
+        return Web::UIEvents::KeyCode::Key_Invalid;
+
+        MAP_KEY(Key_Escape, Key_Escape);
+        MAP_KEY(Key_Tab, Key_Tab);
+        MAP_KEY(Key_Backspace, Key_Backspace);
+        MAP_KEY(Key_Return, Key_Return);
+        MAP_KEY(Key_Insert, Key_Insert);
+        MAP_KEY(Key_Delete, Key_Delete);
+        MAP_KEY(Key_PrintScreen, Key_PrintScreen);
+        MAP_KEY(Key_PauseBreak, Key_PauseBreak);
+        MAP_KEY(Key_SysRq, Key_SysRq);
+        MAP_KEY(Key_Home, Key_Home);
+        MAP_KEY(Key_End, Key_End);
+        MAP_KEY(Key_Left, Key_Left);
+        MAP_KEY(Key_Up, Key_Up);
+        MAP_KEY(Key_Right, Key_Right);
+        MAP_KEY(Key_Down, Key_Down);
+        MAP_KEY(Key_PageUp, Key_PageUp);
+        MAP_KEY(Key_PageDown, Key_PageDown);
+        MAP_KEY(Key_LeftShift, Key_LeftShift);
+        MAP_KEY(Key_RightShift, Key_RightShift);
+        MAP_KEY(Key_LeftControl, Key_LeftControl);
+        MAP_KEY(Key_RightControl, Key_RightControl);
+        MAP_KEY(Key_LeftAlt, Key_LeftAlt);
+        MAP_KEY(Key_RightAlt, Key_RightAlt);
+        MAP_KEY(Key_AltGr, Key_AltGr);
+        MAP_KEY(Key_CapsLock, Key_CapsLock);
+        MAP_KEY(Key_NumLock, Key_NumLock);
+        MAP_KEY(Key_ScrollLock, Key_ScrollLock);
+        MAP_KEY(Key_F1, Key_F1);
+        MAP_KEY(Key_F2, Key_F2);
+        MAP_KEY(Key_F3, Key_F3);
+        MAP_KEY(Key_F4, Key_F4);
+        MAP_KEY(Key_F5, Key_F5);
+        MAP_KEY(Key_F6, Key_F6);
+        MAP_KEY(Key_F7, Key_F7);
+        MAP_KEY(Key_F8, Key_F8);
+        MAP_KEY(Key_F9, Key_F9);
+        MAP_KEY(Key_F10, Key_F10);
+        MAP_KEY(Key_F11, Key_F11);
+        MAP_KEY(Key_F12, Key_F12);
+        MAP_KEY(Key_Space, Key_Space);
+        MAP_KEY(Key_ExclamationPoint, Key_ExclamationPoint);
+        MAP_KEY(Key_DoubleQuote, Key_DoubleQuote);
+        MAP_KEY(Key_Hashtag, Key_Hashtag);
+        MAP_KEY(Key_Dollar, Key_Dollar);
+        MAP_KEY(Key_Percent, Key_Percent);
+        MAP_KEY(Key_Ampersand, Key_Ampersand);
+        MAP_KEY(Key_Apostrophe, Key_Apostrophe);
+        MAP_KEY(Key_LeftParen, Key_LeftParen);
+        MAP_KEY(Key_RightParen, Key_RightParen);
+        MAP_KEY(Key_Asterisk, Key_Asterisk);
+        MAP_KEY(Key_Plus, Key_Plus);
+        MAP_KEY(Key_Comma, Key_Comma);
+        MAP_KEY(Key_Minus, Key_Minus);
+        MAP_KEY(Key_Period, Key_Period);
+        MAP_KEY(Key_Slash, Key_Slash);
+        MAP_KEY(Key_0, Key_0);
+        MAP_KEY(Key_1, Key_1);
+        MAP_KEY(Key_2, Key_2);
+        MAP_KEY(Key_3, Key_3);
+        MAP_KEY(Key_4, Key_4);
+        MAP_KEY(Key_5, Key_5);
+        MAP_KEY(Key_6, Key_6);
+        MAP_KEY(Key_7, Key_7);
+        MAP_KEY(Key_8, Key_8);
+        MAP_KEY(Key_9, Key_9);
+        MAP_KEY(Key_Colon, Key_Colon);
+        MAP_KEY(Key_Semicolon, Key_Semicolon);
+        MAP_KEY(Key_LessThan, Key_LessThan);
+        MAP_KEY(Key_Equal, Key_Equal);
+        MAP_KEY(Key_GreaterThan, Key_GreaterThan);
+        MAP_KEY(Key_QuestionMark, Key_QuestionMark);
+        MAP_KEY(Key_AtSign, Key_AtSign);
+        MAP_KEY(Key_A, Key_A);
+        MAP_KEY(Key_B, Key_B);
+        MAP_KEY(Key_C, Key_C);
+        MAP_KEY(Key_D, Key_D);
+        MAP_KEY(Key_E, Key_E);
+        MAP_KEY(Key_F, Key_F);
+        MAP_KEY(Key_G, Key_G);
+        MAP_KEY(Key_H, Key_H);
+        MAP_KEY(Key_I, Key_I);
+        MAP_KEY(Key_J, Key_J);
+        MAP_KEY(Key_K, Key_K);
+        MAP_KEY(Key_L, Key_L);
+        MAP_KEY(Key_M, Key_M);
+        MAP_KEY(Key_N, Key_N);
+        MAP_KEY(Key_O, Key_O);
+        MAP_KEY(Key_P, Key_P);
+        MAP_KEY(Key_Q, Key_Q);
+        MAP_KEY(Key_R, Key_R);
+        MAP_KEY(Key_S, Key_S);
+        MAP_KEY(Key_T, Key_T);
+        MAP_KEY(Key_U, Key_U);
+        MAP_KEY(Key_V, Key_V);
+        MAP_KEY(Key_W, Key_W);
+        MAP_KEY(Key_X, Key_X);
+        MAP_KEY(Key_Y, Key_Y);
+        MAP_KEY(Key_Z, Key_Z);
+        MAP_KEY(Key_LeftBracket, Key_LeftBracket);
+        MAP_KEY(Key_RightBracket, Key_RightBracket);
+        MAP_KEY(Key_Backslash, Key_Backslash);
+        MAP_KEY(Key_Circumflex, Key_Circumflex);
+        MAP_KEY(Key_Underscore, Key_Underscore);
+        MAP_KEY(Key_LeftBrace, Key_LeftBrace);
+        MAP_KEY(Key_RightBrace, Key_RightBrace);
+        MAP_KEY(Key_Pipe, Key_Pipe);
+        MAP_KEY(Key_Tilde, Key_Tilde);
+        MAP_KEY(Key_Backtick, Key_Backtick);
+        MAP_KEY(Key_LeftSuper, Key_LeftSuper);
+        MAP_KEY(Key_RightSuper, Key_RightSuper);
+        MAP_KEY(Key_BrowserSearch, Key_BrowserSearch);
+        MAP_KEY(Key_BrowserFavorites, Key_BrowserFavorites);
+        MAP_KEY(Key_BrowserHome, Key_BrowserHome);
+        MAP_KEY(Key_PreviousTrack, Key_PreviousTrack);
+        MAP_KEY(Key_BrowserBack, Key_BrowserBack);
+        MAP_KEY(Key_BrowserForward, Key_BrowserForward);
+        MAP_KEY(Key_BrowserRefresh, Key_BrowserRefresh);
+        MAP_KEY(Key_BrowserStop, Key_BrowserStop);
+        MAP_KEY(Key_VolumeDown, Key_VolumeDown);
+        MAP_KEY(Key_VolumeUp, Key_VolumeUp);
+        MAP_KEY(Key_Wake, Key_Wake);
+        MAP_KEY(Key_Sleep, Key_Sleep);
+        MAP_KEY(Key_NextTrack, Key_NextTrack);
+        MAP_KEY(Key_MediaSelect, Key_MediaSelect);
+        MAP_KEY(Key_Email, Key_Email);
+        MAP_KEY(Key_MyComputer, Key_MyComputer);
+        MAP_KEY(Key_Power, Key_Power);
+        MAP_KEY(Key_Stop, Key_Stop);
+        MAP_KEY(Key_LeftGUI, Key_LeftGUI);
+        MAP_KEY(Key_Mute, Key_Mute);
+        MAP_KEY(Key_RightGUI, Key_RightGUI);
+        MAP_KEY(Key_Calculator, Key_Calculator);
+        MAP_KEY(Key_Apps, Key_Apps);
+        MAP_KEY(Key_PlayPause, Key_PlayPause);
+        MAP_KEY(Key_Menu, Key_Menu);
+    }
+}
+
 void OutOfProcessWebView::enqueue_native_event(Web::KeyEvent::Type type, GUI::KeyEvent const& event)
 {
-    enqueue_input_event(Web::KeyEvent { type, event.key(), static_cast<KeyModifier>(event.modifiers()), event.code_point(), make<KeyData>(event) });
+    auto key_code = web_key_code_from_gui_key_code(event.key());
+    auto modifiers = web_modifiers_from_gui_modifiers(event.modifiers());
+
+    enqueue_input_event(Web::KeyEvent { type, key_code, modifiers, event.code_point(), make<KeyData>(event) });
 }
 
 void OutOfProcessWebView::finish_handling_key_event(Web::KeyEvent const& key_event)

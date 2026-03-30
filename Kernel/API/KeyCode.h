@@ -7,7 +7,6 @@
 #pragma once
 
 #include <AK/EnumBits.h>
-#include <AK/Platform.h>
 #include <AK/Types.h>
 
 #define ENUMERATE_KEY_CODES                                    \
@@ -169,14 +168,6 @@ enum KeyModifier {
     Mod_Mask = Mod_Alt | Mod_Ctrl | Mod_Shift | Mod_Super | Mod_AltGr | Mod_Keypad,
 
     Is_Press = 0x80,
-
-#if defined(AK_OS_MACOS)
-    Mod_PlatformCtrl = Mod_Super,
-    Mod_PlatformWordJump = Mod_Alt,
-#else
-    Mod_PlatformCtrl = Mod_Ctrl,
-    Mod_PlatformWordJump = Mod_Ctrl,
-#endif
 };
 
 AK_ENUM_BITWISE_OPERATORS(KeyModifier);
