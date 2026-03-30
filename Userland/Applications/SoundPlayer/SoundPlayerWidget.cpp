@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "SoundPlayerWidget.h"
 #include "AlbumCoverVisualizationWidget.h"
 #include "BarsVisualizationWidget.h"
 #include "M3UParser.h"
 #include "PlaybackManager.h"
 #include "SampleWidget.h"
+#include "SoundPlayerWidget.h"
 #include <AK/ByteString.h>
 #include <AK/LexicalPath.h>
 #include <AK/NumberFormat.h>
@@ -87,7 +87,7 @@ SoundPlayerWidget::SoundPlayerWidget(GUI::Window& window, Audio::ConnectionToSer
     m_play_action->set_enabled(false);
     menubar.add_action(*m_play_action);
 
-    m_stop_action = GUI::Action::create("Stop", { Key_S }, m_stop_icon, [&](auto&) {
+    m_stop_action = GUI::Action::create("Stop", { 'S' }, m_stop_icon, [&](auto&) {
         stop();
     });
     m_stop_action->set_enabled(false);
@@ -115,7 +115,7 @@ SoundPlayerWidget::SoundPlayerWidget(GUI::Window& window, Audio::ConnectionToSer
 
     menubar.add_separator();
 
-    m_mute_action = GUI::Action::create("Mute", { Key_M }, m_volume_icon, [&](auto&) {
+    m_mute_action = GUI::Action::create("Mute", { 'M' }, m_volume_icon, [&](auto&) {
         toggle_mute();
     });
     m_mute_action->set_enabled(true);

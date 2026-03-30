@@ -112,12 +112,12 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
     game_menu->add_action(GUI::Action::create("&Resign", { Mod_None, Key_F3 }, [&](auto&) {
         chess_widget.resign();
     }));
-    game_menu->add_action(GUI::Action::create("&Flip Board", { Mod_Ctrl, Key_F }, [&](auto&) {
+    game_menu->add_action(GUI::Action::create("&Flip Board", { Mod_Ctrl, 'F' }, [&](auto&) {
         chess_widget.flip_board();
     }));
     game_menu->add_separator();
 
-    game_menu->add_action(GUI::Action::create("&Import PGN...", { Mod_Ctrl, Key_O }, [&](auto&) {
+    game_menu->add_action(GUI::Action::create("&Import PGN...", { Mod_Ctrl, 'O' }, [&](auto&) {
         FileSystemAccessClient::OpenFileOptions options {
             .allowed_file_types = Vector {
                 GUI::FileTypeFilter { "PGN Files", { { "pgn" } } },
@@ -136,7 +136,7 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
             dbgln("Imported PGN file from {}", result.value().filename());
         }
     }));
-    game_menu->add_action(GUI::Action::create("&Export PGN...", { Mod_Ctrl, Key_S }, [&](auto&) {
+    game_menu->add_action(GUI::Action::create("&Export PGN...", { Mod_Ctrl, 'S' }, [&](auto&) {
         auto result = FileSystemAccessClient::Client::the().save_file(window, "Untitled", "pgn");
         if (result.is_error())
             return;
@@ -146,7 +146,7 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
         else
             dbgln("Exported PGN file to {}", result.value().filename());
     }));
-    game_menu->add_action(GUI::Action::create("&Copy FEN", { Mod_Ctrl, Key_C }, [&](auto&) {
+    game_menu->add_action(GUI::Action::create("&Copy FEN", { Mod_Ctrl, 'C' }, [&](auto&) {
         GUI::Clipboard::the().set_data(chess_widget.get_fen().release_value_but_fixme_should_propagate_errors().bytes());
         GUI::MessageBox::show(window, "Board state copied to clipboard as FEN."sv, "Copy FEN"sv, GUI::MessageBox::Type::Information);
     }));

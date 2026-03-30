@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "HexEditorWidget.h"
 #include "FindDialog.h"
 #include "GoToOffsetDialog.h"
+#include "HexEditorWidget.h"
 #include "SearchResultsModel.h"
 #include "ValueInspectorModel.h"
 #include <AK/Forward.h>
@@ -160,7 +160,7 @@ ErrorOr<void> HexEditorWidget::setup()
         m_editor->update();
     };
 
-    m_new_action = GUI::Action::create("New...", { Mod_Ctrl, Key_N }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/new.png"sv)), [this](const GUI::Action&) {
+    m_new_action = GUI::Action::create("New...", { Mod_Ctrl, 'N' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/new.png"sv)), [this](const GUI::Action&) {
         String value;
         if (request_close() && GUI::InputBox::show(window(), value, "Enter a size:"sv, "New File"sv, GUI::InputType::NonemptyText) == GUI::InputBox::ExecResult::OK) {
             auto file_size = AK::StringUtils::convert_to_uint(value);
@@ -271,7 +271,7 @@ ErrorOr<void> HexEditorWidget::setup()
     });
     m_redo_action->set_enabled(false);
 
-    m_find_action = GUI::Action::create("&Find...", { Mod_Ctrl, Key_F }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/find.png"sv)), [&](const GUI::Action&) {
+    m_find_action = GUI::Action::create("&Find...", { Mod_Ctrl, 'F' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/find.png"sv)), [&](const GUI::Action&) {
         auto old_buffer = m_search_buffer;
         bool find_all = false;
         if (FindDialog::show(window(), m_search_text, m_search_buffer, find_all) == GUI::InputBox::ExecResult::OK) {
@@ -308,7 +308,7 @@ ErrorOr<void> HexEditorWidget::setup()
         }
     });
 
-    m_goto_offset_action = GUI::Action::create("&Go to Offset...", { Mod_Ctrl, Key_G }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/go-to.png"sv)), [this](const GUI::Action&) {
+    m_goto_offset_action = GUI::Action::create("&Go to Offset...", { Mod_Ctrl, 'G' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/go-to.png"sv)), [this](const GUI::Action&) {
         int new_offset;
         auto result = GoToOffsetDialog::show(
             window(),
@@ -342,22 +342,22 @@ ErrorOr<void> HexEditorWidget::setup()
         Config::write_bool("HexEditor"sv, "Layout"sv, "ShowOffsetsColumn"sv, action.is_checked());
     });
 
-    m_copy_hex_action = GUI::Action::create("Copy &Hex", { Mod_Ctrl, Key_C }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/hex.png"sv)), [&](const GUI::Action&) {
+    m_copy_hex_action = GUI::Action::create("Copy &Hex", { Mod_Ctrl, 'C' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/hex.png"sv)), [&](const GUI::Action&) {
         m_editor->copy_selected_hex_to_clipboard();
     });
     m_copy_hex_action->set_enabled(false);
 
-    m_copy_text_action = GUI::Action::create("Copy &Text", { Mod_Ctrl | Mod_Shift, Key_C }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/edit-copy.png"sv)), [&](const GUI::Action&) {
+    m_copy_text_action = GUI::Action::create("Copy &Text", { Mod_Ctrl | Mod_Shift, 'C' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/edit-copy.png"sv)), [&](const GUI::Action&) {
         m_editor->copy_selected_text_to_clipboard();
     });
     m_copy_text_action->set_enabled(false);
 
-    m_copy_as_c_code_action = GUI::Action::create("Copy as &C Code", { Mod_Alt | Mod_Shift, Key_C }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/c.png"sv)), [&](const GUI::Action&) {
+    m_copy_as_c_code_action = GUI::Action::create("Copy as &C Code", { Mod_Alt | Mod_Shift, 'C' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/c.png"sv)), [&](const GUI::Action&) {
         m_editor->copy_selected_hex_to_clipboard_as_c_code();
     });
     m_copy_as_c_code_action->set_enabled(false);
 
-    m_fill_selection_action = GUI::Action::create("Fill &Selection...", { Mod_Ctrl, Key_B }, [&](const GUI::Action&) {
+    m_fill_selection_action = GUI::Action::create("Fill &Selection...", { Mod_Ctrl, 'B' }, [&](const GUI::Action&) {
         String value;
         if (GUI::InputBox::show(window(), value, "Fill byte (hex):"sv, "Fill Selection"sv, GUI::InputType::NonemptyText) == GUI::InputBox::ExecResult::OK) {
             auto fill_byte = strtol(value.bytes_as_string_view().characters_without_null_termination(), nullptr, 16);
@@ -623,7 +623,7 @@ ErrorOr<void> HexEditorWidget::initialize_menubar(GUI::Window& window)
         m_last_found_index = result.value();
     }));
 
-    edit_menu->add_action(GUI::Action::create("Find All &Strings", { Mod_Ctrl | Mod_Shift, Key_F }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/find.png"sv)), [&](const GUI::Action&) {
+    edit_menu->add_action(GUI::Action::create("Find All &Strings", { Mod_Ctrl | Mod_Shift, 'F' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/find.png"sv)), [&](const GUI::Action&) {
         int min_length = 4;
         auto matches = m_editor->find_all_strings(min_length);
         m_search_results->set_model(*new SearchResultsModel(move(matches)));

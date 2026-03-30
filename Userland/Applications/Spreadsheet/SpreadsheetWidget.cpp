@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "SpreadsheetWidget.h"
 #include "CellSyntaxHighlighter.h"
 #include "HelpWindow.h"
+#include "SpreadsheetWidget.h"
 #include <LibFileSystemAccessClient/Client.h>
 #include <LibGUI/Application.h>
 #include <LibGUI/BoxLayout.h>
@@ -264,13 +264,13 @@ SpreadsheetWidget::SpreadsheetWidget(GUI::Window& parent_window, Vector<NonnullR
     m_redo_action->set_enabled(false);
 
     m_change_background_color_action = GUI::Action::create(
-        "&Change Background Color", { Mod_Ctrl, Key_B }, Gfx::Bitmap::load_from_file("/res/icons/pixelpaint/bucket.png"sv).release_value_but_fixme_should_propagate_errors(), [&](auto&) {
+        "&Change Background Color", { Mod_Ctrl, 'B' }, Gfx::Bitmap::load_from_file("/res/icons/pixelpaint/bucket.png"sv).release_value_but_fixme_should_propagate_errors(), [&](auto&) {
             change_cell_static_color_format(Spreadsheet::FormatType::Background);
         },
         window());
 
     m_change_foreground_color_action = GUI::Action::create(
-        "&Change Foreground Color", { Mod_Ctrl, Key_T }, Gfx::Bitmap::load_from_file("/res/icons/16x16/text-color.png"sv).release_value_but_fixme_should_propagate_errors(), [&](auto&) {
+        "&Change Foreground Color", { Mod_Ctrl, 'T' }, Gfx::Bitmap::load_from_file("/res/icons/16x16/text-color.png"sv).release_value_but_fixme_should_propagate_errors(), [&](auto&) {
             change_cell_static_color_format(Spreadsheet::FormatType::Foreground);
         },
         window());

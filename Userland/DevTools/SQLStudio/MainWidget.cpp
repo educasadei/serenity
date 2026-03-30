@@ -61,7 +61,7 @@ static Vector<ByteString> lookup_database_names()
 
 ErrorOr<void> MainWidget::initialize()
 {
-    m_new_action = GUI::Action::create("&New", { Mod_Ctrl, Key_N }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/new.png"sv)), [this](auto&) {
+    m_new_action = GUI::Action::create("&New", { Mod_Ctrl, 'N' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/new.png"sv)), [this](auto&) {
         open_new_script();
     });
 
