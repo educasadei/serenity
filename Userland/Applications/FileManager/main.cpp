@@ -729,7 +729,7 @@ ErrorOr<int> run_in_windowed_mode(ByteString const& initial_location, ByteString
     layout_statusbar_action->set_checked(show_statusbar);
     statusbar.set_visible(show_statusbar);
 
-    layout_folderpane_action = GUI::Action::create_checkable("&Folder Pane", { Mod_Ctrl, Key_P }, [&](auto& action) {
+    layout_folderpane_action = GUI::Action::create_checkable("&Folder Pane", { Mod_Ctrl, 'P' }, [&](auto& action) {
         action.is_checked() ? tree_view.set_visible(true) : tree_view.set_visible(false);
         Config::write_bool("FileManager"sv, "Layout"sv, "ShowFolderPane"sv, action.is_checked());
     });
@@ -975,7 +975,7 @@ ErrorOr<int> run_in_windowed_mode(ByteString const& initial_location, ByteString
     });
     focus_dependent_delete_action->set_enabled(false);
 
-    auto new_window_action = GUI::Action::create("&New Window", { Mod_Ctrl, Key_N }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/new-window.png"sv)), [&](GUI::Action const&) {
+    auto new_window_action = GUI::Action::create("&New Window", { Mod_Ctrl, 'N' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/new-window.png"sv)), [&](GUI::Action const&) {
         Desktop::Launcher::open(URL::create_with_file_scheme(directory_view->path()));
     });
 
@@ -1004,7 +1004,7 @@ ErrorOr<int> run_in_windowed_mode(ByteString const& initial_location, ByteString
         directories_model->set_should_show_dotfiles(show_dotfiles);
     };
 
-    auto show_dotfiles_action = GUI::Action::create_checkable("&Show Dotfiles", { Mod_Ctrl, Key_H }, [&](auto& action) {
+    auto show_dotfiles_action = GUI::Action::create_checkable("&Show Dotfiles", { Mod_Ctrl, 'H' }, [&](auto& action) {
         show_dotfiles_in_view(action.is_checked());
         refresh_tree_view();
         Config::write_bool("FileManager"sv, "DirectoryView"sv, "ShowDotFiles"sv, action.is_checked());
@@ -1035,7 +1035,7 @@ ErrorOr<int> run_in_windowed_mode(ByteString const& initial_location, ByteString
         window->set_fullscreen(!window->is_fullscreen());
     }));
 
-    auto go_to_location_action = GUI::Action::create("Go to &Location...", { Mod_Ctrl, Key_L }, Key_F6, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/go-to.png"sv)), [&](auto&) {
+    auto go_to_location_action = GUI::Action::create("Go to &Location...", { Mod_Ctrl, 'L' }, Key_F6, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/go-to.png"sv)), [&](auto&) {
         toolbar_container.set_visible(true);
         breadcrumb_toolbar.set_visible(true);
         breadcrumbbar.show_location_text_box();

@@ -68,7 +68,7 @@ CharacterMapWidget::CharacterMapWidget()
     });
     m_next_glyph_action->set_status_tip("Seek the next visible glyph"_string);
 
-    m_go_to_glyph_action = GUI::Action::create("&Go to Glyph...", { Mod_Ctrl, Key_G }, Gfx::Bitmap::load_from_file("/res/icons/16x16/go-to.png"sv).release_value_but_fixme_should_propagate_errors(), [&](auto&) {
+    m_go_to_glyph_action = GUI::Action::create("&Go to Glyph...", { Mod_Ctrl, 'G' }, Gfx::Bitmap::load_from_file("/res/icons/16x16/go-to.png"sv).release_value_but_fixme_should_propagate_errors(), [&](auto&) {
         String input;
         if (GUI::InputBox::show(window(), input, "Hexadecimal:"sv, "Go to Glyph"sv, GUI::InputType::NonemptyText) == GUI::InputBox::ExecResult::OK) {
             auto maybe_code_point = AK::StringUtils::convert_to_uint_from_hex(input);
@@ -83,7 +83,7 @@ CharacterMapWidget::CharacterMapWidget()
     });
     m_go_to_glyph_action->set_status_tip("Go to the specified code point"_string);
 
-    m_find_glyphs_action = GUI::Action::create("&Find Glyphs...", { Mod_Ctrl, Key_F }, Gfx::Bitmap::load_from_file("/res/icons/16x16/find.png"sv).release_value_but_fixme_should_propagate_errors(), [&](auto&) {
+    m_find_glyphs_action = GUI::Action::create("&Find Glyphs...", { Mod_Ctrl, 'F' }, Gfx::Bitmap::load_from_file("/res/icons/16x16/find.png"sv).release_value_but_fixme_should_propagate_errors(), [&](auto&) {
         if (m_find_window.is_null()) {
             m_find_window = GUI::Window::construct(window());
             auto search_widget = m_find_window->set_main_widget<CharacterSearchWidget>();

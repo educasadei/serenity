@@ -91,7 +91,7 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
 
     auto open_icon = TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/open.png"sv));
     // Configure the node's context menu.
-    auto open_action = GUI::Action::create("Open in File Manager", { Mod_Ctrl, Key_O }, open_icon, [&](auto&) {
+    auto open_action = GUI::Action::create("Open in File Manager", { Mod_Ctrl, 'O' }, open_icon, [&](auto&) {
         auto path_string = get_absolute_path_to_selected_node(tree_map_widget);
         if (path_string.is_empty())
             return;
@@ -105,7 +105,7 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
     });
 
     auto copy_icon = TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/edit-copy.png"sv));
-    auto copy_path_action = GUI::Action::create("Copy Path to Clipboard", { Mod_Ctrl, Key_C }, copy_icon, [&](auto&) {
+    auto copy_path_action = GUI::Action::create("Copy Path to Clipboard", { Mod_Ctrl, 'C' }, copy_icon, [&](auto&) {
         GUI::Clipboard::the().set_plain_text(get_absolute_path_to_selected_node(tree_map_widget));
     });
     auto delete_action = GUI::CommonActions::make_delete_action([&](auto&) {

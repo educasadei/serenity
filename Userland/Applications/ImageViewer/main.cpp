@@ -172,12 +172,12 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
         widget.rotate(Gfx::RotationDirection::Clockwise);
     });
 
-    auto vertical_flip_action = GUI::Action::create("Flip &Vertically", { Mod_None, Key_V }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/edit-flip-vertical.png"sv)),
+    auto vertical_flip_action = GUI::Action::create("Flip &Vertically", { 'V' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/edit-flip-vertical.png"sv)),
         [&](auto&) {
             widget.flip(Gfx::Orientation::Vertical);
         });
 
-    auto horizontal_flip_action = GUI::Action::create("Flip &Horizontally", { Mod_None, Key_H }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/edit-flip-horizontal.png"sv)),
+    auto horizontal_flip_action = GUI::Action::create("Flip &Horizontally", { 'H' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/edit-flip-horizontal.png"sv)),
         [&](auto&) {
             widget.flip(Gfx::Orientation::Horizontal);
         });
@@ -240,7 +240,7 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
         },
         window);
 
-    auto hide_show_toolbar_action = GUI::Action::create_checkable("&Toolbar", { Mod_Ctrl, Key_T },
+    auto hide_show_toolbar_action = GUI::Action::create_checkable("&Toolbar", { Mod_Ctrl, 'T' },
         [&](auto& action) {
             toolbar_container.set_visible(action.is_checked());
         });

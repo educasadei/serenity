@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "PresenterWidget.h"
 #include "Presentation.h"
+#include "PresenterWidget.h"
 #include <LibCore/MimeData.h>
 #include <LibDesktop/Launcher.h>
 #include <LibFileSystemAccessClient/Client.h>
@@ -87,7 +87,7 @@ ErrorOr<void> PresenterWidget::initialize_menubar()
         auto* window = this->window();
         window->set_fullscreen(!window->is_fullscreen());
     });
-    m_resize_to_fit_content_action = GUI::Action::create("Resize to Fit &Content", { KeyModifier::Mod_Alt, KeyCode::Key_C }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/scale.png"sv)), [this](auto&) {
+    m_resize_to_fit_content_action = GUI::Action::create("Resize to Fit &Content", { KeyModifier::Mod_Alt, 'C' }, TRY(Gfx::Bitmap::load_from_file("/res/icons/16x16/scale.png"sv)), [this](auto&) {
         if (m_current_presentation) {
             auto presentation_size = m_current_presentation->normative_size();
             auto* window = this->window();

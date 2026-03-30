@@ -9,7 +9,6 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "Tab.h"
 #include "BookmarksBarWidget.h"
 #include "Browser.h"
 #include "BrowserWindow.h"
@@ -18,6 +17,7 @@
 #include "History/HistoryWidget.h"
 #include "InspectorWidget.h"
 #include "StorageWidget.h"
+#include "Tab.h"
 #include <AK/StringBuilder.h>
 #include <Applications/Browser/TabGML.h>
 #include <Applications/Browser/URLBox.h>
@@ -189,7 +189,7 @@ Tab::Tab(BrowserWindow& window)
     }));
 
     auto bookmark_action = GUI::Action::create(
-        "Bookmark current URL", { Mod_Ctrl, Key_D }, [this](auto&) {
+        "Bookmark current URL", { Mod_Ctrl, 'D' }, [this](auto&) {
             if (auto result = bookmark_current_url(); result.is_error())
                 GUI::MessageBox::show_error(this->window().main_widget()->window(), MUST(String::formatted("Failed to bookmark URL: {}", result.error())));
         },
@@ -673,7 +673,7 @@ Tab::Tab(BrowserWindow& window)
     };
 
     auto focus_location_box_action = GUI::Action::create(
-        "Focus location box", { Mod_Ctrl, Key_L }, Key_F6, [this](auto&) {
+        "Focus location box", { Mod_Ctrl, 'L' }, Key_F6, [this](auto&) {
             m_location_box->set_focus(true);
             m_location_box->select_current_line();
         },
