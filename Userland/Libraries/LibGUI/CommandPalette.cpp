@@ -267,9 +267,9 @@ void CommandPalette::collect_actions(GUI::Window& parent_window)
     });
 
     if (!parent_window.is_modal()) {
-        for (auto const& it : GUI::Application::the()->global_shortcut_actions({})) {
-            if (should_show_action(it.value))
-                actions.set(*it.value);
+        for (auto const& action : GUI::Application::the()->global_shortcut_actions({})) {
+            if (should_show_action(action))
+                actions.set(*action);
         }
     }
 

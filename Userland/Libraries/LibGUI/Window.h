@@ -207,8 +207,6 @@ public:
 
     virtual bool is_visible_for_timer_purposes() const override { return m_visible_for_timer_purposes; }
 
-    Action* action_for_shortcut(Shortcut const&);
-
     void did_add_widget(Badge<Widget>, Widget&);
     void did_remove_widget(Badge<Widget>, Widget&);
 
@@ -242,6 +240,7 @@ public:
     };
 
     void propagate_shortcuts(KeyEvent& event, Widget* widget, ShortcutPropagationBoundary = ShortcutPropagationBoundary::Application);
+    void propagate_shortcuts(MouseEvent& event, Widget* widget, ShortcutPropagationBoundary = ShortcutPropagationBoundary::Application);
 
     void restore_size_and_position(StringView domain, StringView group = "Window"sv, Optional<Gfx::IntSize> fallback_size = {}, Optional<Gfx::IntPoint> fallback_position = {});
     void save_size_and_position(StringView domain, StringView group = "Window"sv) const;

@@ -82,7 +82,8 @@ public:
     static NonnullRefPtr<Action> create_checkable(ByteString text, Shortcut const& shortcut, Function<void(Action&)> callback, Core::EventReceiver* parent = nullptr);
     static NonnullRefPtr<Action> create_checkable(ByteString text, Shortcut const& shortcut, RefPtr<Gfx::Bitmap const> icon, Function<void(Action&)> callback, Core::EventReceiver* parent = nullptr);
 
-    static RefPtr<Action> find_action_for_shortcut(Core::EventReceiver& object, Shortcut const& shortcut);
+    static RefPtr<Action> find_shortcut_action(Core::EventReceiver& object, KeyEvent const& event);
+    static RefPtr<Action> find_shortcut_action(Core::EventReceiver& object, MouseEvent const& event);
 
     virtual ~Action() override;
 
