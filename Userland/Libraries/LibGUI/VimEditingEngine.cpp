@@ -121,7 +121,7 @@ void VimCursor::move_backwards()
     }
 }
 
-void VimMotion::add_key_code(KeyCode key, [[maybe_unused]] bool ctrl, bool shift, [[maybe_unused]] bool alt)
+void VimMotion::add_key(KeyEvent const& event)
 {
     if (is_complete())
         return;
@@ -130,11 +130,7 @@ void VimMotion::add_key_code(KeyCode key, [[maybe_unused]] bool ctrl, bool shift
         // We need to consume the next character because we are going to find
         // until that character.
 
-        // HACK: there is no good way to obtain whether a character is alphanumeric
-        // from the keycode itself.
-        char const* keycode_str = key_code_to_string(key);
-
-        if (strlen(keycode_str) == 1 && (isalpha(keycode_str[0]) || isspace(keycode_str[0]))) {
+        if (isalpha(event.code_point()) || isspace(event.code_point())) {
             m_next_character = tolower(keycode_str[0]);
             m_unit = Unit::Find;
         } else {
@@ -148,35 +144,37 @@ void VimMotion::add_key_code(KeyCode key, [[maybe_unused]] bool ctrl, bool shift
 
     bool should_use_guirky = m_guirky_mode;
 
-    switch (key) {
-#define DIGIT(n)                        \
-    case KeyCode::Key_##n:              \
+    switch (event.code_point()) {
+        // #n[0] test it
+#define DIGIT(code_point, n)            \
+    case code_point:                    \
         m_amount = (m_amount * 10) + n; \
         break
 
         // Digits add digits to the amount.
-        DIGIT(1);
-        DIGIT(2);
-        DIGIT(3);
-        DIGIT(4);
-        DIGIT(5);
-        DIGIT(6);
-        DIGIT(7);
-        DIGIT(8);
-        DIGIT(9);
+        DIGIT('1', 1);
+        DIGIT('2', 2);
+        DIGIT('3', 3);
+        DIGIT('4', 4);
+        DIGIT('5', 5);
+        DIGIT('6', 6);
+        DIGIT('7', 7);
+        DIGIT('8', 8);
+        DIGIT('9', 9);
 
 #undef DIGIT
+    }
 
     // Home means to the beginning of the line.
-    case KeyCode::Key_Home:
+    if (event.key() == KeyCode::Key_Home) {
         m_unit = Unit::Character;
         m_amount = START_OF_LINE;
         m_is_complete = true;
-        break;
+    }
 
     // If 0 appears while amount is 0, then it means beginning of line.
     // Otherwise, it adds 0 to the amount.
-    case KeyCode::Key_0:
+    else if (event.code_point() == '0') {
         if (m_amount == 0) {
             m_unit = Unit::Character;
             m_amount = START_OF_LINE;
@@ -184,41 +182,36 @@ void VimMotion::add_key_code(KeyCode key, [[maybe_unused]] bool ctrl, bool shift
         } else {
             m_amount = m_amount * 10;
         }
-        break;
+    }
 
     // End or $ means end of line.
     // TODO: d2$ in vim deletes to the end of the line and then the next line.
-    case KeyCode::Key_End:
-    case KeyCode::Key_Dollar:
+    else if (event.key() == KeyCode::Key_End || event.code_point() == '$') {
         m_unit = Unit::Character;
         m_amount = END_OF_LINE;
         m_is_complete = true;
-        break;
+    }
 
     // ^ means the first non-whitespace character for this line.
     // It deletes backwards if you're in front of it, and forwards if you're behind.
-    case KeyCode::Key_Circumflex:
+    else if (event.code_point() == '^') {
         m_unit = Unit::Character;
         m_amount = START_OF_NON_WHITESPACE;
         m_is_complete = true;
-        break;
+    }
 
     // j, down or + operates on this line and amount line(s) after.
-    case KeyCode::Key_J:
-    case KeyCode::Key_Down:
-    case KeyCode::Key_Plus:
+    else if (event.code_point() == 'j' || event.code_point() == '+' || event.key() == KeyCode::Key_Down) {
         m_unit = Unit::Line;
 
         if (m_amount == 0)
             m_amount = 1;
 
         m_is_complete = true;
-        break;
+    }
 
     // k, up or - operates on this line and amount line(s) before.
-    case KeyCode::Key_K:
-    case KeyCode::Key_Up:
-    case KeyCode::Key_Minus:
+    else if (event.code_point() == 'k' || event.code_point() == '-' || event.key() == KeyCode::Key_Up) {
         m_unit = Unit::Line;
 
         if (m_amount == 0)
@@ -227,12 +220,10 @@ void VimMotion::add_key_code(KeyCode key, [[maybe_unused]] bool ctrl, bool shift
             m_amount = -m_amount;
 
         m_is_complete = true;
-        break;
+    }
 
     // BS, h or left operates on this character and amount character(s) before.
-    case KeyCode::Key_Backspace:
-    case KeyCode::Key_H:
-    case KeyCode::Key_Left:
+    else if (event.key() == KeyCode::Key_Backspace || event.code_point() == 'h' || event.key() == KeyCode::Key_Left) {
         m_unit = Unit::Character;
 
         if (m_amount == 0)
@@ -241,23 +232,22 @@ void VimMotion::add_key_code(KeyCode key, [[maybe_unused]] bool ctrl, bool shift
             m_amount = -m_amount;
 
         m_is_complete = true;
-        break;
+    }
 
     // l or right operates on this character and amount character(s) after.
-    case KeyCode::Key_L:
-    case KeyCode::Key_Right:
+    else if (event.code_point() == 'l' || event.key() == KeyCode::Key_Right) {
         m_unit = Unit::Character;
 
         if (m_amount > 0)
             m_amount--;
 
         m_is_complete = true;
-        break;
+    }
 
     // w operates on amount word(s) after.
     // W operates on amount WORD(s) after.
-    case KeyCode::Key_W:
-        if (shift)
+    else if (event.code_point() == 'w' || event.code_point() == 'W') {
+        if (event.code_point() == 'W')
             m_unit = Unit::WORD;
         else
             m_unit = Unit::Word;
@@ -266,12 +256,12 @@ void VimMotion::add_key_code(KeyCode key, [[maybe_unused]] bool ctrl, bool shift
             m_amount = 1;
 
         m_is_complete = true;
-        break;
+    }
 
     // b operates on amount word(s) before.
     // B operates on amount WORD(s) before.
-    case KeyCode::Key_B:
-        if (shift)
+    else if (event.code_point() == 'b' || event.code_point() == 'B') {
+        if (event.code_point() == 'B')
             m_unit = Unit::WORD;
         else
             m_unit = Unit::Word;
@@ -282,14 +272,14 @@ void VimMotion::add_key_code(KeyCode key, [[maybe_unused]] bool ctrl, bool shift
             m_amount = -m_amount;
 
         m_is_complete = true;
-        break;
+    }
 
     // e operates on amount of word(s) after, till the end of the last word.
     // E operates on amount of WORD(s) after, till the end of the last WORD.
     // ge operates on amount of word(s) before, till the end of the last word.
     // gE operates on amount of WORD(s) before, till the end of the last WORD.
-    case KeyCode::Key_E:
-        if (shift)
+    else if (event.code_point() == 'e' || event.code_point() == 'E') {
+        if (event.code_point() == 'E')
             m_unit = Unit::EndOfWORD;
         else
             m_unit = Unit::EndOfWord;
@@ -307,57 +297,56 @@ void VimMotion::add_key_code(KeyCode key, [[maybe_unused]] bool ctrl, bool shift
         }
 
         m_is_complete = true;
-        break;
+    }
 
     // g enables guirky (g-prefix commands) mode.
     // gg operates from the start of the document to the cursor.
     // G operates from the cursor to the end of the document.
-    case KeyCode::Key_G:
+    else if (event.code_point() == 'g') {
         if (m_guirky_mode) {
-            if (shift) {
-                // gG is not a valid command in vim.
-                m_guirky_mode = false;
-                m_unit = Unit::Unknown;
-                m_is_complete = true;
-            } else {
-                m_guirky_mode = false;
-                m_unit = Unit::Document;
-                m_amount = -1;
-                m_is_complete = true;
-            }
+            m_guirky_mode = false;
+            m_unit = Unit::Document;
+            m_amount = -1;
+            m_is_complete = true;
         } else {
-            if (shift) {
-                m_unit = Unit::Document;
-                m_amount = 1;
-                m_is_complete = true;
-            } else {
-                m_guirky_mode = true;
-            }
+            m_guirky_mode = true;
         }
-        break;
+    }
+
+    else if (event.code_point() == 'G') {
+        if (m_guirky_mode) {
+            // gG is not a valid command in vim.
+            m_guirky_mode = false;
+            m_unit = Unit::Unknown;
+            m_is_complete = true;
+        } else {
+            m_unit = Unit::Document;
+            m_amount = 1;
+            m_is_complete = true;
+        }
+    }
 
     // t operates until the given character.
-    case KeyCode::Key_T:
+    else if (event.code_point() == 't') {
         m_find_mode = FindMode::To;
         m_should_consume_next_character = true;
 
         if (m_amount == 0)
             m_amount = 1;
-        break;
+    }
 
     // f operates through the given character.
-    case KeyCode::Key_F:
+    else if (event.code_point() == 't') {
         m_find_mode = FindMode::Find;
         m_should_consume_next_character = true;
 
         if (m_amount == 0)
             m_amount = 1;
-        break;
+    }
 
-    default:
+    else {
         m_unit = Unit::Unknown;
         m_is_complete = true;
-        break;
     }
 
     if (should_use_guirky && m_guirky_mode) {
@@ -796,14 +785,14 @@ bool VimEditingEngine::on_key_in_insert_mode(KeyEvent const& event)
         return true;
 
     if (event.ctrl()) {
-        switch (event.key()) {
-        case KeyCode::Key_W:
+        switch (event.code_point()) {
+        case 'w':
             m_editor->delete_previous_word();
             return true;
-        case KeyCode::Key_H:
+        case 'h':
             m_editor->delete_previous_char();
             return true;
-        case KeyCode::Key_U:
+        case 'u':
             m_editor->delete_from_line_start_to_cursor();
             return true;
         default:
@@ -811,7 +800,7 @@ bool VimEditingEngine::on_key_in_insert_mode(KeyEvent const& event)
         }
     }
 
-    if (event.key() == KeyCode::Key_Escape || (event.ctrl() && event.key() == KeyCode::Key_LeftBracket) || (event.ctrl() && event.key() == KeyCode::Key_C)) {
+    if (event.key() == KeyCode::Key_Escape || (event.ctrl() && event.code_point() == '[') || (event.ctrl() && event.code_point() == 'c')) {
         if (m_editor->cursor().column() > 0)
             move_one_left();
         switch_to_normal_mode();
@@ -830,8 +819,8 @@ bool VimEditingEngine::on_key_in_normal_mode(KeyEvent const& event)
         return false;
     }
 
-    if (m_previous_key == KeyCode::Key_D) {
-        if (event.key() == KeyCode::Key_D && !m_motion.should_consume_next_character()) {
+    if (m_previous_key == 'd') {
+        if (event.code_point() == 'd' && !m_motion.should_consume_next_character()) {
             if (m_motion.amount()) {
                 auto range = m_motion.get_repeat_range(*this, VimMotion::Unit::Line);
                 VERIFY(range.has_value());
@@ -859,8 +848,8 @@ bool VimEditingEngine::on_key_in_normal_mode(KeyEvent const& event)
                 m_previous_key = {};
             }
         }
-    } else if (m_previous_key == KeyCode::Key_Y) {
-        if (event.key() == KeyCode::Key_Y && !m_motion.should_consume_next_character()) {
+    } else if (m_previous_key == 'y') {
+        if (event.code_point() == 'y' && !m_motion.should_consume_next_character()) {
             if (m_motion.amount()) {
                 auto range = m_motion.get_repeat_range(*this, VimMotion::Unit::Line);
                 VERIFY(range.has_value());
@@ -888,8 +877,8 @@ bool VimEditingEngine::on_key_in_normal_mode(KeyEvent const& event)
                 m_previous_key = {};
             }
         }
-    } else if (m_previous_key == KeyCode::Key_C) {
-        if (event.key() == KeyCode::Key_C && !m_motion.should_consume_next_character()) {
+    } else if (m_previous_key == 'c') {
+        if (event.code_point() == 'c' && !m_motion.should_consume_next_character()) {
             // Needed because the code to replace the deleted line is called after delete_line() so
             // what was the second last line before the delete, is now the last line.
             bool was_second_last_line = m_editor->cursor().line() == m_editor->line_count() - 2;
@@ -953,43 +942,63 @@ bool VimEditingEngine::on_key_in_normal_mode(KeyEvent const& event)
             break;
         }
 
-        // SHIFT is pressed.
-        if (event.shift() && !event.ctrl() && !event.alt()) {
-            switch (event.key()) {
-            case (KeyCode::Key_A):
+        // CTRL is pressed.
+        if (event.ctrl() && !event.alt()) {
+            switch (event.code_point()) {
+            case ('d'):
+                move_half_page_down();
+                return true;
+            case ('r'):
+                m_editor->redo();
+                return true;
+            case ('u'):
+                move_half_page_up();
+                return true;
+            default:
+                break;
+            }
+        }
+
+        // FIXME: H and L movement keys will move to the previous or next line when reaching the beginning or end
+        //  of the line and pressed again.
+
+        // No modifier is pressed.
+        if (!event.ctrl() && !event.alt()) {
+            switch (event.code_point()) {
+            case ('A'):
                 move_to_logical_line_end();
                 switch_to_insert_mode();
                 return true;
-            case (KeyCode::Key_D):
+            case ('D'):
                 m_editor->delete_text_range({ m_editor->cursor(), { m_editor->cursor().line(), m_editor->current_line().length() } });
                 if (m_editor->cursor().column() != 0)
                     move_one_left();
                 break;
-            case (KeyCode::Key_I):
+            case ('I'):
                 move_to_logical_line_beginning();
                 switch_to_insert_mode();
                 return true;
-            case (KeyCode::Key_O):
+            case ('O'):
                 move_to_logical_line_beginning();
                 m_editor->add_code_point(0x0A);
                 move_one_up(event);
                 switch_to_insert_mode();
                 return true;
-            case (KeyCode::Key_LeftBrace): {
+            case ('{'): {
                 auto amount = m_motion.amount() > 0 ? m_motion.amount() : 1;
                 m_motion.reset();
                 for (int i = 0; i < amount; i++)
                     move_to_previous_empty_lines_block();
                 return true;
             }
-            case (KeyCode::Key_RightBrace): {
+            case ('}'): {
                 auto amount = m_motion.amount() > 0 ? m_motion.amount() : 1;
                 m_motion.reset();
                 for (int i = 0; i < amount; i++)
                     move_to_next_empty_lines_block();
                 return true;
             }
-            case (KeyCode::Key_J): {
+            case ('J'): {
                 // Looks a bit strange, but join without a repeat, with 1 as the repeat or 2 as the repeat all join the current and next lines
                 auto amount = (m_motion.amount() > 2) ? (m_motion.amount() - 1) : 1;
                 m_motion.reset();
@@ -1004,62 +1013,34 @@ bool VimEditingEngine::on_key_in_normal_mode(KeyEvent const& event)
                 }
                 return true;
             }
-            case (KeyCode::Key_P):
+            case ('P'):
                 put_before();
                 break;
-            case (KeyCode::Key_V):
+            case ('V'):
                 switch_to_visual_line_mode();
                 return true;
-            default:
-                break;
-            }
-        }
-
-        // CTRL is pressed.
-        if (event.ctrl() && !event.shift() && !event.alt()) {
-            switch (event.key()) {
-            case (KeyCode::Key_D):
-                move_half_page_down();
-                return true;
-            case (KeyCode::Key_R):
-                m_editor->redo();
-                return true;
-            case (KeyCode::Key_U):
-                move_half_page_up();
-                return true;
-            default:
-                break;
-            }
-        }
-
-        // FIXME: H and L movement keys will move to the previous or next line when reaching the beginning or end
-        //  of the line and pressed again.
-
-        // No modifier is pressed.
-        if (!event.ctrl() && !event.shift() && !event.alt()) {
-            switch (event.key()) {
-            case (KeyCode::Key_A):
+            case ('a'):
                 move_one_right();
                 switch_to_insert_mode();
                 return true;
-            case (KeyCode::Key_C):
-                m_previous_key = event.key();
+            case ('c'):
+                m_previous_key = event.code_point();
                 return true;
-            case (KeyCode::Key_D):
-                m_previous_key = event.key();
+            case ('d'):
+                m_previous_key = event.code_point();
                 return true;
-            case (KeyCode::Key_I):
+            case ('i'):
                 switch_to_insert_mode();
                 return true;
-            case (KeyCode::Key_O):
+            case ('o'):
                 move_to_logical_line_end();
                 m_editor->add_code_point(0x0A);
                 switch_to_insert_mode();
                 return true;
-            case (KeyCode::Key_U):
+            case ('u'):
                 m_editor->undo();
                 return true;
-            case (KeyCode::Key_X): {
+            case ('x'): {
                 TextRange range = { m_editor->cursor(), { m_editor->cursor().line(), m_editor->cursor().column() + 1 } };
                 if (m_motion.amount()) {
                     auto opt = m_motion.get_repeat_range(*this, VimMotion::Unit::Character);
@@ -1071,15 +1052,20 @@ bool VimEditingEngine::on_key_in_normal_mode(KeyEvent const& event)
                 m_editor->delete_text_range(range);
                 return true;
             }
-            case (KeyCode::Key_V):
+            case ('v'):
                 switch_to_visual_mode();
                 return true;
-            case (KeyCode::Key_Y):
-                m_previous_key = event.key();
+            case ('y'):
+                m_previous_key = event.code_point();
                 return true;
-            case (KeyCode::Key_P):
+            case ('p'):
                 put_after();
                 return true;
+            default:
+                break;
+            }
+
+            switch (event.key()) {
             case (KeyCode::Key_PageUp):
                 move_page_up();
                 return true;
@@ -1139,38 +1125,14 @@ bool VimEditingEngine::on_key_in_visual_mode(KeyEvent const& event)
         break;
     }
 
-    // SHIFT is pressed.
-    if (event.shift() && !event.ctrl() && !event.alt()) {
-        switch (event.key()) {
-        case (KeyCode::Key_A):
-            move_to_logical_line_end();
-            switch_to_insert_mode();
-            return true;
-        case (KeyCode::Key_I):
-            move_to_logical_line_beginning();
-            switch_to_insert_mode();
-            return true;
-        case (KeyCode::Key_U):
-            casefold_selection(Casing::Uppercase);
-            switch_to_normal_mode();
-            return true;
-        case (KeyCode::Key_Tilde):
-            casefold_selection(Casing::Invertcase);
-            switch_to_normal_mode();
-            return true;
-        default:
-            break;
-        }
-    }
-
     // CTRL is pressed.
-    if (event.ctrl() && !event.shift() && !event.alt()) {
-        switch (event.key()) {
-        case (KeyCode::Key_D):
+    if (event.ctrl() && !event.alt()) {
+        switch (event.code_point()) {
+        case ('d'):
             move_half_page_down();
             update_selection_on_cursor_move();
             return true;
-        case (KeyCode::Key_U):
+        case ('U'):
             move_half_page_up();
             update_selection_on_cursor_move();
             return true;
@@ -1180,34 +1142,55 @@ bool VimEditingEngine::on_key_in_visual_mode(KeyEvent const& event)
     }
 
     // No modifier is pressed.
-    if (!event.ctrl() && !event.shift() && !event.alt()) {
-        switch (event.key()) {
-        case (KeyCode::Key_D):
+    if (!event.ctrl() && !event.alt()) {
+        switch (event.code_point()) {
+        case ('A'):
+            move_to_logical_line_end();
+            switch_to_insert_mode();
+            return true;
+        case ('I'):
+            move_to_logical_line_beginning();
+            switch_to_insert_mode();
+            return true;
+        case ('U'):
+            casefold_selection(Casing::Uppercase);
+            switch_to_normal_mode();
+            return true;
+        case ('~'):
+            casefold_selection(Casing::Invertcase);
+            switch_to_normal_mode();
+            return true;
+        case ('d'):
             yank(Selection);
             m_editor->do_delete();
             switch_to_normal_mode();
             return true;
-        case (KeyCode::Key_X):
+        case ('x'):
             yank(Selection);
             m_editor->do_delete();
             switch_to_normal_mode();
             return true;
-        case (KeyCode::Key_V):
+        case ('v'):
             switch_to_normal_mode();
             return true;
-        case (KeyCode::Key_C):
+        case ('c'):
             yank(Selection);
             m_editor->do_delete();
             switch_to_insert_mode();
             return true;
-        case (KeyCode::Key_Y):
+        case ('y'):
             yank(Selection);
             switch_to_normal_mode();
             return true;
-        case (KeyCode::Key_U):
+        case ('u'):
             casefold_selection(Casing::Lowercase);
             switch_to_normal_mode();
             return true;
+        default:
+            break;
+        }
+
+        switch (event.key()) {
         case (KeyCode::Key_PageUp):
             move_page_up();
             update_selection_on_cursor_move();
@@ -1269,30 +1252,14 @@ bool VimEditingEngine::on_key_in_visual_line_mode(KeyEvent const& event)
         break;
     }
 
-    // SHIFT is pressed.
-    if (event.shift() && !event.ctrl() && !event.alt()) {
-        switch (event.key()) {
-        case (KeyCode::Key_U):
-            casefold_selection(Casing::Uppercase);
-            switch_to_normal_mode();
-            return true;
-        case (KeyCode::Key_Tilde):
-            casefold_selection(Casing::Invertcase);
-            switch_to_normal_mode();
-            return true;
-        default:
-            break;
-        }
-    }
-
     // CTRL is pressed.
-    if (event.ctrl() && !event.shift() && !event.alt()) {
-        switch (event.key()) {
-        case (KeyCode::Key_D):
+    if (event.ctrl() && !event.alt()) {
+        switch (event.code_point()) {
+        case ('d'):
             move_half_page_down();
             update_selection_on_cursor_move();
             return true;
-        case (KeyCode::Key_U):
+        case ('u'):
             move_half_page_up();
             update_selection_on_cursor_move();
             return true;
@@ -1302,31 +1269,52 @@ bool VimEditingEngine::on_key_in_visual_line_mode(KeyEvent const& event)
     }
 
     // No modifier is pressed.
-    if (!event.ctrl() && !event.shift() && !event.alt()) {
-        switch (event.key()) {
-        case (KeyCode::Key_D):
+    if (!event.ctrl() && !event.alt()) {
+        switch (event.code_point()) {
+        case ('U'):
+            casefold_selection(Casing::Uppercase);
+            switch_to_normal_mode();
+            return true;
+        case ('~'):
+            casefold_selection(Casing::Invertcase);
+            switch_to_normal_mode();
+            return true;
+        case ('d'):
             yank(m_editor->selection(), Line);
             m_editor->do_delete();
             switch_to_normal_mode();
             return true;
-        case (KeyCode::Key_X):
+        case ('x'):
             yank(m_editor->selection(), Line);
             m_editor->do_delete();
             switch_to_normal_mode();
             return true;
-        case (KeyCode::Key_C):
+        case ('c'):
             yank(m_editor->selection(), Line);
             m_editor->do_delete();
             switch_to_insert_mode();
             return true;
-        case (KeyCode::Key_Y):
+        case ('y'):
             yank(m_editor->selection(), Line);
             switch_to_normal_mode();
             return true;
-        case (KeyCode::Key_U):
+        case ('u'):
             casefold_selection(Casing::Lowercase);
             switch_to_normal_mode();
             return true;
+        case (KeyCode::Key_PageUp):
+            move_page_up();
+            update_selection_on_cursor_move();
+            return true;
+        case (KeyCode::Key_PageDown):
+            move_page_down();
+            update_selection_on_cursor_move();
+            return true;
+        default:
+            break;
+        }
+
+        switch (event.key()) {
         case (KeyCode::Key_PageUp):
             move_page_up();
             update_selection_on_cursor_move();
