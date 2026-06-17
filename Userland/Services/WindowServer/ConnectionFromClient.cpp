@@ -509,8 +509,8 @@ Messages::WindowServer::SetWindowRectResponse ConnectionFromClient::set_window_r
     auto new_rect = rect;
     window.apply_minimum_size(new_rect);
     window.set_rect(new_rect);
-    window.request_update(window.rect());
-    return window.rect();
+    window.request_update(window.target_rect());
+    return window.target_rect();
 }
 
 Messages::WindowServer::GetWindowRectResponse ConnectionFromClient::get_window_rect(i32 window_id)
@@ -520,7 +520,7 @@ Messages::WindowServer::GetWindowRectResponse ConnectionFromClient::get_window_r
         did_misbehave("GetWindowRect: Bad window ID");
         return nullptr;
     }
-    return it->value->rect();
+    return it->value->target_rect();
 }
 
 Messages::WindowServer::GetWindowFloatingRectResponse ConnectionFromClient::get_window_floating_rect(i32 window_id)
@@ -592,7 +592,7 @@ void ConnectionFromClient::set_window_minimum_size(i32 window_id, Gfx::IntSize s
         auto new_rect = window.rect();
         bool did_size_clamp = window.apply_minimum_size(new_rect);
         window.set_rect(new_rect);
-        window.request_update(window.rect());
+        window.request_update(window.target_rect());
 
         if (did_size_clamp)
             window.refresh_client_size();
@@ -745,7 +745,7 @@ void ConnectionFromClient::post_paint_message(Window& window, bool ignore_occlus
     if (window.is_minimized() || (!ignore_occlusion && window.is_occluded()))
         return;
 
-    async_paint(window.window_id(), window.size(), rect_set.rects());
+    async_paint(window.window_id(), window.target_size(), rect_set.rects());
 }
 
 void ConnectionFromClient::invalidate_rect(i32 window_id, Vector<Gfx::IntRect> const& rects, bool ignore_occlusion)
@@ -757,7 +757,7 @@ void ConnectionFromClient::invalidate_rect(i32 window_id, Vector<Gfx::IntRect> c
     }
     auto& window = *(*it).value;
     for (size_t i = 0; i < rects.size(); ++i)
-        window.request_update(rects[i].intersected(Gfx::Rect { {}, window.size() }), ignore_occlusion);
+        window.request_update(rects[i].intersected(Gfx::Rect { {}, window.target_size() }), ignore_occlusion);
 }
 
 void ConnectionFromClient::did_finish_painting(i32 window_id, Vector<Gfx::IntRect> const& rects)
@@ -1406,7 +1406,7 @@ Messages::WindowServer::GetWindowRectFromClientResponse ConnectionFromClient::ge
         return { Gfx::IntRect() };
     }
 
-    return window->rect();
+    return window->target_rect();
 }
 
 void ConnectionFromClient::add_window_stealing_for_client(i32 client_id, i32 window_id)

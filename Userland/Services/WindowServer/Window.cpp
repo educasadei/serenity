@@ -150,7 +150,9 @@ void Window::set_rect(Gfx::IntRect const& rect)
     if (m_rect == rect)
         return;
     auto old_rect = m_rect;
-    m_rect = rect;
+    m_rect.set_location(rect.location());
+    m_target_rect = rect;
+
     if (!m_should_show_window_content) {
         m_rect.set_height(0);
     }
@@ -158,15 +160,15 @@ void Window::set_rect(Gfx::IntRect const& rect)
         m_backing_store = nullptr;
     } else if (is_internal() && (!m_backing_store || old_rect.size() != rect.size())) {
         auto format = has_alpha_channel() ? Gfx::BitmapFormat::BGRA8888 : Gfx::BitmapFormat::BGRx8888;
-        m_backing_store = Gfx::Bitmap::create(format, m_rect.size()).release_value_but_fixme_should_propagate_errors();
-        m_backing_store_visible_size = m_rect.size();
+        m_backing_store = Gfx::Bitmap::create(format, rect.size()).release_value_but_fixme_should_propagate_errors();
+        set_backing_store_visible_size(rect.size());
     }
 
     if (m_floating_rect.is_empty())
         m_floating_rect = rect;
 
     invalidate(true, old_rect.size() != rect.size());
-    m_frame.window_rect_changed(old_rect, rect);
+    m_frame.window_rect_changed(old_rect, m_rect);
     invalidate_last_rendered_screen_rects();
 }
 
@@ -177,10 +179,33 @@ void Window::set_rect_without_repaint(Gfx::IntRect const& rect)
         return;
     auto old_rect = m_rect;
     m_rect = rect;
+    m_target_rect = rect;
 
     invalidate(true, old_rect.size() != rect.size());
     m_frame.window_rect_changed(old_rect, rect);
     invalidate_last_rendered_screen_rects();
+}
+
+void Window::set_backing_store(RefPtr<Gfx::Bitmap> backing_store, i32 serial)
+{
+    m_last_backing_store = move(m_backing_store);
+    m_backing_store = move(backing_store);
+
+    m_last_backing_store_serial = m_backing_store_serial;
+    m_backing_store_serial = serial;
+}
+
+void Window::set_backing_store_visible_size(Gfx::IntSize visible_size)
+{
+    m_backing_store_visible_size = visible_size;
+
+    if (visible_size != m_rect.size()) {
+        auto old_rect = m_rect;
+        m_rect.set_size(visible_size);
+        invalidate(true, old_rect.size() != m_rect.size());
+        m_frame.window_rect_changed(old_rect, m_rect);
+        invalidate_last_rendered_screen_rects();
+    }
 }
 
 bool Window::apply_minimum_size(Gfx::IntRect& rect)
@@ -261,7 +286,7 @@ void Window::set_minimized(bool minimized)
     if (!blocking_modal_window())
         start_minimize_animation();
     if (!minimized)
-        request_update({ {}, size() });
+        request_update({ {}, target_size() });
 
     // Since a minimized window won't be visible we need to invalidate the last rendered
     // rectangles before the next occlusion calculation
@@ -283,7 +308,7 @@ void Window::set_hidden(bool hidden)
     if (!blocking_modal_window())
         start_minimize_animation();
     if (!hidden)
-        request_update({ {}, size() });
+        request_update({ {}, target_size() });
     WindowManager::the().notify_minimization_state_changed(*this);
 }
 
@@ -646,7 +671,7 @@ void Window::invalidate_last_rendered_screen_rects_now()
 
 void Window::refresh_client_size()
 {
-    client()->async_window_resized(m_window_id, m_rect);
+    client()->async_window_resized(m_window_id, m_target_rect);
 }
 
 void Window::prepare_dirty_rects()
@@ -1004,7 +1029,7 @@ void Window::tile_type_changed(Optional<Screen const&> tile_on_screen)
 
 void Window::send_resize_event_to_client()
 {
-    Core::EventLoop::current().post_event(*this, make<ResizeEvent>(m_rect));
+    Core::EventLoop::current().post_event(*this, make<ResizeEvent>(m_target_rect));
 }
 
 void Window::send_move_event_to_client()

@@ -1304,7 +1304,7 @@ void Compositor::recompute_occlusions()
                 visible_opaque = move(opaque_render_rects);
 
             auto render_rect_on_screen = w.frame().render_rect().translated(transition_offset);
-            auto visible_window_rects = remaining_visible_screen_rects.intersected(w.rect().translated(transition_offset));
+            auto visible_window_rects = remaining_visible_screen_rects.intersected(w.target_rect().translated(transition_offset));
             Gfx::DisjointIntRectSet opaque_covering;
             Gfx::DisjointIntRectSet transparent_covering;
             bool found_this_window = false;

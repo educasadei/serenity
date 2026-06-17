@@ -234,17 +234,13 @@ public:
     Gfx::Bitmap const* backing_store() const { return m_backing_store.ptr(); }
     Gfx::Bitmap* backing_store() { return m_backing_store.ptr(); }
 
-    void set_backing_store(RefPtr<Gfx::Bitmap> backing_store, i32 serial)
-    {
-        m_last_backing_store = move(m_backing_store);
-        m_backing_store = move(backing_store);
+    Gfx::IntRect target_rect() const { return m_target_rect; }
+    Gfx::IntSize target_size() const { return m_target_rect.size(); }
 
-        m_last_backing_store_serial = m_backing_store_serial;
-        m_backing_store_serial = serial;
-    }
+    void set_backing_store(RefPtr<Gfx::Bitmap> backing_store, i32 serial);
 
     Gfx::IntSize backing_store_visible_size() const { return m_backing_store_visible_size; }
-    void set_backing_store_visible_size(Gfx::IntSize visible_size) { m_backing_store_visible_size = visible_size; }
+    void set_backing_store_visible_size(Gfx::IntSize visible_size);
 
     void swap_backing_stores()
     {
@@ -401,6 +397,7 @@ private:
     ByteString m_title;
     Optional<ByteString> m_title_username;
     Gfx::IntRect m_rect;
+    Gfx::IntRect m_target_rect;
     Gfx::IntRect m_saved_before_roll_up_rect;
     Gfx::IntRect m_saved_nonfullscreen_rect;
     Gfx::IntRect m_taskbar_rect;
