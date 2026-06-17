@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "Compositor.h"
 #include "Animation.h"
+#include "Compositor.h"
 #include "ConnectionFromClient.h"
 #include "Event.h"
 #include "EventLoop.h"
@@ -1397,6 +1397,7 @@ void Compositor::recompute_occlusions()
             // This window should not be occluded while the window switcher is interested in it (depending
             // on the mode it's in). If it isn't then determine occlusions based on whether the window
             // rect has any visible areas at all.
+            dbgln("visible_window_rects.is_empty: {}", visible_window_rects.is_empty());
             w.set_occluded(never_occlude(w.window_stack()) ? false : visible_window_rects.is_empty());
 
             bool have_opaque = !visible_opaque.is_empty();
@@ -1654,8 +1655,8 @@ void Compositor::finish_window_stack_switch()
     m_window_stack_transition_animation = nullptr;
 
     auto& wm = WindowManager::the();
-    if (!wm.m_switcher->is_visible())
-        previous_window_stack->set_all_occluded(true);
+    // if (!wm.m_switcher->is_visible())
+    //     previous_window_stack->set_all_occluded(true);
     wm.did_switch_window_stack({}, *previous_window_stack, *m_current_window_stack);
 
     invalidate_occlusions();

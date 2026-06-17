@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "Window.h"
 #include "Animation.h"
 #include "AppletManager.h"
 #include "Compositor.h"
@@ -13,6 +12,7 @@
 #include "Event.h"
 #include "EventLoop.h"
 #include "Screen.h"
+#include "Window.h"
 #include "WindowManager.h"
 #include <AK/Badge.h>
 #include <AK/CharacterTypes.h>
@@ -149,13 +149,18 @@ void Window::set_rect(Gfx::IntRect const& rect)
 {
     if (m_rect == rect)
         return;
+
+    dbgln("set_rect: '{}' {}", m_title, rect);
+
     auto old_rect = m_rect;
     m_rect.set_location(rect.location());
+    // m_rect = rect;
     m_target_rect = rect;
 
     if (!m_should_show_window_content) {
         m_rect.set_height(0);
     }
+
     if (rect.is_empty()) {
         m_backing_store = nullptr;
     } else if (is_internal() && (!m_backing_store || old_rect.size() != rect.size())) {
@@ -177,6 +182,9 @@ void Window::set_rect_without_repaint(Gfx::IntRect const& rect)
     VERIFY(rect.width() >= 0 && rect.height() >= 0);
     if (m_rect == rect)
         return;
+
+    dbgln("set_rect_no_repaint: '{}' {}", m_title, rect);
+
     auto old_rect = m_rect;
     m_rect = rect;
     m_target_rect = rect;
@@ -188,6 +196,8 @@ void Window::set_rect_without_repaint(Gfx::IntRect const& rect)
 
 void Window::set_backing_store(RefPtr<Gfx::Bitmap> backing_store, i32 serial)
 {
+    dbgln("Set backing_store: '{}' {}", m_title, backing_store->size());
+
     m_last_backing_store = move(m_backing_store);
     m_backing_store = move(backing_store);
 
@@ -197,6 +207,7 @@ void Window::set_backing_store(RefPtr<Gfx::Bitmap> backing_store, i32 serial)
 
 void Window::set_backing_store_visible_size(Gfx::IntSize visible_size)
 {
+    dbgln("Set visible_size: '{}' {}", m_title, visible_size);
     m_backing_store_visible_size = visible_size;
 
     if (visible_size != m_rect.size()) {
@@ -205,6 +216,8 @@ void Window::set_backing_store_visible_size(Gfx::IntSize visible_size)
         invalidate(true, old_rect.size() != m_rect.size());
         m_frame.window_rect_changed(old_rect, m_rect);
         invalidate_last_rendered_screen_rects();
+
+        dbgln("New m_rect: '{}', {}", m_title, m_rect);
     }
 }
 
@@ -419,6 +432,7 @@ void Window::set_has_alpha_channel(bool value)
 
 void Window::set_occluded(bool occluded)
 {
+    dbgln("set_occluded: '{}' {}", m_title, occluded);
     if (m_occluded == occluded)
         return;
     m_occluded = occluded;
@@ -671,6 +685,7 @@ void Window::invalidate_last_rendered_screen_rects_now()
 
 void Window::refresh_client_size()
 {
+    dbgln("Refresh Client Size: '{}' {}", m_title, m_target_rect);
     client()->async_window_resized(m_window_id, m_target_rect);
 }
 
@@ -729,9 +744,13 @@ void Window::set_default_icon()
 
 void Window::request_update(Gfx::IntRect const& rect, bool ignore_occlusion)
 {
-    if (rect.is_empty())
+    dbgln("Request update: '{}', {}", m_title, rect);
+    if (rect.is_empty()) {
+        dbgln("Empty rect for request update");
         return;
+    }
     if (m_pending_paint_rects.is_empty()) {
+        dbgln("Post paint message indeed");
         deferred_invoke([this, ignore_occlusion] {
             client()->post_paint_message(*this, ignore_occlusion);
         });
@@ -1029,11 +1048,13 @@ void Window::tile_type_changed(Optional<Screen const&> tile_on_screen)
 
 void Window::send_resize_event_to_client()
 {
+    dbgln("Resize Event: '{}' {}", m_title, m_target_rect);
     Core::EventLoop::current().post_event(*this, make<ResizeEvent>(m_target_rect));
 }
 
 void Window::send_move_event_to_client()
 {
+    dbgln("Move Event: '{}' {}", m_title, m_rect);
     Core::EventLoop::current().post_event(*this, make<MoveEvent>(m_rect));
 }
 

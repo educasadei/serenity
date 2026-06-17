@@ -91,6 +91,7 @@ void ConnectionToWindowServer::update_system_effects(Vector<bool> const& effects
 
 void ConnectionToWindowServer::paint(i32 window_id, Gfx::IntSize window_size, Vector<Gfx::IntRect> const& rects)
 {
+    dbgln("Paint event 1");
     if (auto* window = Window::from_window_id(window_id))
         Core::EventLoop::current().post_event(*window, make<MultiPaintEvent>(rects, window_size));
 }

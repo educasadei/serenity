@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "WindowStack.h"
 #include "WindowManager.h"
+#include "WindowStack.h"
 
 namespace WindowServer {
 
@@ -130,6 +130,7 @@ void WindowStack::set_all_occluded(bool occluded)
         if (!WindowManager::is_stationary_window_type(window.type()))
             window.set_occluded(occluded);
     }
+    dbg("{}", occluded);
 }
 
 Optional<HitTestResult> WindowStack::hit_test(Gfx::IntPoint position) const

@@ -488,6 +488,7 @@ void ConnectionFromClient::set_window_icon_bitmap(i32 window_id, Gfx::ShareableB
 
 Messages::WindowServer::SetWindowRectResponse ConnectionFromClient::set_window_rect(i32 window_id, Gfx::IntRect const& rect)
 {
+    dbgln("Set window rect");
     auto it = m_windows.find(window_id);
     if (it == m_windows.end()) {
         did_misbehave("SetWindowRect: Bad window ID");
@@ -572,6 +573,7 @@ static Gfx::IntSize calculate_minimum_size_for_window(Window const& window)
 
 void ConnectionFromClient::set_window_minimum_size(i32 window_id, Gfx::IntSize size)
 {
+    dbgln("set minimu size");
     auto it = m_windows.find(window_id);
     if (it == m_windows.end()) {
         did_misbehave("SetWindowMinimumSize: Bad window ID");
@@ -741,9 +743,12 @@ Messages::WindowServer::DestroyWindowResponse ConnectionFromClient::destroy_wind
 
 void ConnectionFromClient::post_paint_message(Window& window, bool ignore_occlusion)
 {
+    dbgln("Post paint message: '{}', {}", window.title(), window.target_size());
     auto rect_set = window.take_pending_paint_rects();
-    if (window.is_minimized() || (!ignore_occlusion && window.is_occluded()))
+    if (window.is_minimized() || (!ignore_occlusion && window.is_occluded())) {
+        dbgln("paint ignored, minimized: {}, ignore_occlusion: {}, is_occluded: {}", window.is_minimized(), ignore_occlusion, window.is_occluded());
         return;
+    }
 
     async_paint(window.window_id(), window.target_size(), rect_set.rects());
 }
@@ -756,8 +761,12 @@ void ConnectionFromClient::invalidate_rect(i32 window_id, Vector<Gfx::IntRect> c
         return;
     }
     auto& window = *(*it).value;
-    for (size_t i = 0; i < rects.size(); ++i)
+    dbgln("Invalidate rect: '{}', ignore_occlusion: {}", window.title(), ignore_occlusion);
+    for (size_t i = 0; i < rects.size(); ++i) {
+        if (window.title() == "GUI::Window"sv)
+            dbgln("invalidated_rects: [{}] {}", i, rects[i]);
         window.request_update(rects[i].intersected(Gfx::Rect { {}, window.target_size() }), ignore_occlusion);
+    }
 }
 
 void ConnectionFromClient::did_finish_painting(i32 window_id, Vector<Gfx::IntRect> const& rects)

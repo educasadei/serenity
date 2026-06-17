@@ -121,6 +121,7 @@ Window::Window(Core::EventReceiver* parent)
     , m_menubar(Menubar::construct())
     , m_pid(getpid())
 {
+    dbgln("Create Window");
     if (parent)
         set_window_mode(WindowMode::Passive);
 
@@ -474,6 +475,7 @@ void Window::handle_mouse_event(MouseEvent& event)
 
 Gfx::IntSize Window::backing_store_size(Gfx::IntSize window_size) const
 {
+    dbgln("window_size: {}", window_size);
     if (!m_resizing)
         return window_size;
 
@@ -483,6 +485,10 @@ Gfx::IntSize Window::backing_store_size(Gfx::IntSize window_size) const
 
 void Window::handle_multi_paint_event(MultiPaintEvent& event)
 {
+    dbgln("Paint event, window size: {}", event.window_size());
+    if (m_back_store)
+        dbgln("back store size: {}", m_back_store->size());
+
     if (!is_visible())
         return;
     if (!m_main_widget)
@@ -806,6 +812,7 @@ void Window::handle_left_event(Core::Event& event)
 
 void Window::event(Core::Event& event)
 {
+    dbgln("Received event");
     ScopeGuard guard([&] {
         // Accept the event so it doesn't bubble up to parent windows!
         event.accept();
@@ -905,6 +912,7 @@ void Window::update(Gfx::IntRect const& a_rect)
 
 void Window::set_main_widget(Widget* widget)
 {
+    dbgln("set main widget");
     if (m_main_widget == widget)
         return;
     if (m_main_widget) {
@@ -915,6 +923,7 @@ void Window::set_main_widget(Widget* widget)
     if (m_main_widget) {
         add_child(*widget);
         auto new_window_rect = rect();
+        dbgln("new_window_rect: {}", new_window_rect);
         auto new_widget_min_size = m_main_widget->effective_min_size();
         new_window_rect.set_width(max(new_window_rect.width(), MUST(new_widget_min_size.width().shrink_value())));
         new_window_rect.set_height(max(new_window_rect.height(), MUST(new_widget_min_size.height().shrink_value())));
@@ -1062,6 +1071,7 @@ void Window::flip(Vector<Gfx::IntRect, 32> const& dirty_rects)
 
 ErrorOr<NonnullOwnPtr<WindowBackingStore>> Window::create_backing_store(Gfx::IntSize size)
 {
+    dbgln("backing store size: {}", size);
     auto format = m_has_alpha_channel ? Gfx::BitmapFormat::BGRA8888 : Gfx::BitmapFormat::BGRx8888;
 
     VERIFY(!size.is_empty());
@@ -1474,6 +1484,7 @@ void Window::set_modified(bool modified)
 
 void Window::flush_pending_paints_immediately()
 {
+    dbgln("Flush pending paints");
     if (!m_window_id)
         return;
     if (m_pending_paint_event_rects.is_empty())
