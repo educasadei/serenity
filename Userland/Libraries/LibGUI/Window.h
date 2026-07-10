@@ -242,6 +242,7 @@ public:
     };
 
     void propagate_shortcuts(KeyEvent& event, Widget* widget, ShortcutPropagationBoundary = ShortcutPropagationBoundary::Application);
+    void propagate_shortcuts(MouseEvent& event, Widget* widget, ShortcutPropagationBoundary = ShortcutPropagationBoundary::Application);
 
     void restore_size_and_position(StringView domain, StringView group = "Window"sv, Optional<Gfx::IntSize> fallback_size = {}, Optional<Gfx::IntPoint> fallback_position = {});
     void save_size_and_position(StringView domain, StringView group = "Window"sv) const;

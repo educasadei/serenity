@@ -402,7 +402,15 @@ void Widget::handle_mousedown_event(MouseEvent& event)
 {
     if (has_flag(focus_policy(), FocusPolicy::ClickFocus))
         set_focus(true, FocusSource::Mouse);
+
     mousedown_event(event);
+
+    if (auto action = Action::find_action_for_shortcut(*this, Shortcut(event.modifiers(), event.button()))) {
+        action->process_event(*window(), event);
+        if (event.is_accepted())
+            return;
+    }
+
     if (event.button() == MouseButton::Secondary) {
         ContextMenuEvent c_event(event.position(), screen_relative_rect().location().translated(event.position()));
         dispatch_event(c_event);

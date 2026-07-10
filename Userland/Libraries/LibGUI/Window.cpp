@@ -470,6 +470,11 @@ void Window::handle_mouse_event(MouseEvent& event)
         m_automatic_cursor_tracking_widget = *result.widget;
     auto local_event = MouseEvent((Event::Type)event.type(), result.local_position, event.buttons(), event.button(), event.modifiers(), event.wheel_delta_x(), event.wheel_delta_y(), event.wheel_raw_delta_x(), event.wheel_raw_delta_y());
     result.widget->dispatch_event(local_event, this);
+
+    if (event.type() == Event::MouseDown) {
+        auto const boundary = (is_blocking() || is_popup()) ? ShortcutPropagationBoundary::Window : ShortcutPropagationBoundary::Application;
+        propagate_shortcuts(event, nullptr, boundary);
+    }
 }
 
 Gfx::IntSize Window::backing_store_size(Gfx::IntSize window_size) const
@@ -555,6 +560,37 @@ void Window::propagate_shortcuts(KeyEvent& event, Widget* widget, ShortcutPropag
 {
     VERIFY(event.type() == Event::KeyDown);
     auto shortcut = Shortcut(event.modifiers(), event.key());
+    Action* action = nullptr;
+
+    if (widget) {
+        VERIFY(widget->window() == this);
+
+        do {
+            action = widget->action_for_shortcut(shortcut);
+            if (action)
+                break;
+
+            widget = widget->parent_widget();
+        } while (widget);
+    }
+
+    if (!action && boundary >= ShortcutPropagationBoundary::Window)
+        action = action_for_shortcut(shortcut);
+    if (!action && boundary >= ShortcutPropagationBoundary::Application)
+        action = Application::the()->action_for_shortcut(shortcut);
+
+    if (action) {
+        action->process_event(*this, event);
+        return;
+    }
+
+    event.ignore();
+}
+
+void Window::propagate_shortcuts(MouseEvent& event, Widget* widget, ShortcutPropagationBoundary boundary)
+{
+    VERIFY(event.type() == Event::MouseDown);
+    auto shortcut = Shortcut(event.modifiers(), event.button());
     Action* action = nullptr;
 
     if (widget) {
