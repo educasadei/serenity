@@ -291,7 +291,7 @@ void Widget::handle_keydown_event(KeyEvent& event)
     if (event.is_accepted())
         return;
 
-    if (auto action = Action::find_action_for_shortcut(*this, Shortcut(event.modifiers(), event.key()))) {
+    if (auto action = Action::find_shortcut_action(*this, event)) {
         action->process_event(*window(), event);
         if (event.is_accepted())
             return;
@@ -405,7 +405,7 @@ void Widget::handle_mousedown_event(MouseEvent& event)
 
     mousedown_event(event);
 
-    if (auto action = Action::find_action_for_shortcut(*this, Shortcut(event.modifiers(), event.button()))) {
+    if (auto action = Action::find_shortcut_action(*this, event)) {
         action->process_event(*window(), event);
         if (event.is_accepted())
             return;
@@ -935,11 +935,6 @@ bool Widget::is_backmost() const
     if (!parent)
         return true;
     return parent->children().first() == this;
-}
-
-Action* Widget::action_for_shortcut(Shortcut const& shortcut)
-{
-    return Action::find_action_for_shortcut(*this, shortcut);
 }
 
 void Widget::set_updates_enabled(bool enabled)

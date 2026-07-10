@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2018-2020, Andreas Kling <kling@serenityos.org>
  * Copyright (c) 2022, Geordie Hall <me@geordiehall.com>
+ * Copyright (c) 2026, Eduardo Casadei <educasadei@gmail.com>
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -11,6 +12,29 @@
 #include <LibGUI/Shortcut.h>
 
 namespace GUI {
+
+bool Shortcut::matches(KeyEvent const& event) const
+{
+    if (m_type != Type::Keyboard)
+        return false;
+    if (m_modifiers != event.modifiers())
+        return false;
+
+    if (m_keyboard_key != KeyCode::Key_Invalid && m_keyboard_key == event.key())
+        return true;
+
+    return false;
+}
+
+bool Shortcut::matches(MouseEvent const& event) const
+{
+    if (m_type != Type::Mouse)
+        return false;
+    if (m_modifiers != event.modifiers())
+        return false;
+
+    return m_mouse_button == event.button();
+}
 
 ByteString Shortcut::to_byte_string() const
 {

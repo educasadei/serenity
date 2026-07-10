@@ -63,6 +63,9 @@ public:
         return m_mouse_button;
     }
 
+    bool matches(KeyEvent const& event) const;
+    bool matches(MouseEvent const& event) const;
+
     bool operator==(Shortcut const& other) const
     {
         return m_modifiers == other.m_modifiers && m_type == other.m_type && m_keyboard_key == other.m_keyboard_key && m_mouse_button == other.m_mouse_button;

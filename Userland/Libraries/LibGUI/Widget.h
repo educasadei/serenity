@@ -317,8 +317,6 @@ public:
     bool is_frontmost() const;
     bool is_backmost() const;
 
-    Action* action_for_shortcut(Shortcut const&);
-
     template<typename Callback>
     void for_each_child_widget(Callback callback)
     {

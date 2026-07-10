@@ -36,7 +36,8 @@ public:
     int exec();
     void quit(int = 0);
 
-    Action* action_for_shortcut(Shortcut const&) const;
+    Action* find_shortcut_action(KeyEvent const&) const;
+    Action* find_shortcut_action(MouseEvent const&) const;
 
     void register_global_shortcut_action(Badge<Action>, Action&);
     void unregister_global_shortcut_action(Badge<Action>, Action&);
@@ -112,7 +113,7 @@ private:
     OwnPtr<Core::EventLoop> m_event_loop;
     RefPtr<Gfx::PaletteImpl> m_palette;
     RefPtr<Gfx::PaletteImpl> m_system_palette;
-    HashMap<Shortcut, Action*> m_global_shortcut_actions;
+    Vector<Action*> m_global_shortcut_actions;
     class TooltipWindow;
     RefPtr<Core::Timer> m_tooltip_show_timer;
     RefPtr<Core::Timer> m_tooltip_hide_timer;

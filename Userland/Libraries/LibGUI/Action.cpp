@@ -65,11 +65,24 @@ NonnullRefPtr<Action> Action::create_checkable(ByteString text, Shortcut const& 
     return adopt_ref(*new Action(move(text), shortcut, Shortcut {}, move(icon), move(callback), parent, true));
 }
 
-RefPtr<Action> Action::find_action_for_shortcut(Core::EventReceiver& object, Shortcut const& shortcut)
+RefPtr<Action> Action::find_shortcut_action(Core::EventReceiver& object, KeyEvent const& event)
 {
     RefPtr<Action> found_action = nullptr;
     object.for_each_child_of_type<Action>([&](auto& action) {
-        if (action.shortcut() == shortcut || action.alternate_shortcut() == shortcut) {
+        if (action.shortcut().matches(event) || action.alternate_shortcut().matches(event)) {
+            found_action = &action;
+            return IterationDecision::Break;
+        }
+        return IterationDecision::Continue;
+    });
+    return found_action;
+}
+
+RefPtr<Action> Action::find_shortcut_action(Core::EventReceiver& object, MouseEvent const& event)
+{
+    RefPtr<Action> found_action = nullptr;
+    object.for_each_child_of_type<Action>([&](auto& action) {
+        if (action.shortcut().matches(event) || action.alternate_shortcut().matches(event)) {
             found_action = &action;
             return IterationDecision::Break;
         }

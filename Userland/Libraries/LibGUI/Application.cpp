@@ -134,22 +134,32 @@ void Application::quit(int exit_code)
 
 void Application::register_global_shortcut_action(Badge<Action>, Action& action)
 {
-    m_global_shortcut_actions.set(action.shortcut(), &action);
-    m_global_shortcut_actions.set(action.alternate_shortcut(), &action);
+    m_global_shortcut_actions.append(&action);
 }
 
 void Application::unregister_global_shortcut_action(Badge<Action>, Action& action)
 {
-    m_global_shortcut_actions.remove(action.shortcut());
-    m_global_shortcut_actions.remove(action.alternate_shortcut());
+    m_global_shortcut_actions.remove_first_matching([&](auto const& other_action) {
+        return action.shortcut() == other_action->shortcut() && action.alternate_shortcut() == other_action->alternate_shortcut();
+    });
 }
 
-Action* Application::action_for_shortcut(Shortcut const& shortcut) const
+Action* Application::find_shortcut_action(KeyEvent const& event) const
 {
-    auto it = m_global_shortcut_actions.find(shortcut);
-    if (it == m_global_shortcut_actions.end())
-        return nullptr;
-    return (*it).value;
+    for (auto const& action : m_global_shortcut_actions) {
+        if (action->shortcut().matches(event) || action->alternate_shortcut().matches(event))
+            return action;
+    }
+    return nullptr;
+}
+
+Action* Application::find_shortcut_action(MouseEvent const& event) const
+{
+    for (auto const& action : m_global_shortcut_actions) {
+        if (action->shortcut().matches(event) || action->alternate_shortcut().matches(event))
+            return action;
+    }
+    return nullptr;
 }
 
 void Application::show_tooltip(String tooltip, Widget const* tooltip_source_widget)

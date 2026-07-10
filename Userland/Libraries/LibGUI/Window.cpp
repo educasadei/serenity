@@ -559,14 +559,13 @@ void Window::handle_multi_paint_event(MultiPaintEvent& event)
 void Window::propagate_shortcuts(KeyEvent& event, Widget* widget, ShortcutPropagationBoundary boundary)
 {
     VERIFY(event.type() == Event::KeyDown);
-    auto shortcut = Shortcut(event.modifiers(), event.key());
     Action* action = nullptr;
 
     if (widget) {
         VERIFY(widget->window() == this);
 
         do {
-            action = widget->action_for_shortcut(shortcut);
+            action = Action::find_shortcut_action(*widget, event);
             if (action)
                 break;
 
@@ -575,9 +574,9 @@ void Window::propagate_shortcuts(KeyEvent& event, Widget* widget, ShortcutPropag
     }
 
     if (!action && boundary >= ShortcutPropagationBoundary::Window)
-        action = action_for_shortcut(shortcut);
+        action = Action::find_shortcut_action(*this, event);
     if (!action && boundary >= ShortcutPropagationBoundary::Application)
-        action = Application::the()->action_for_shortcut(shortcut);
+        action = Application::the()->find_shortcut_action(event);
 
     if (action) {
         action->process_event(*this, event);
@@ -590,14 +589,13 @@ void Window::propagate_shortcuts(KeyEvent& event, Widget* widget, ShortcutPropag
 void Window::propagate_shortcuts(MouseEvent& event, Widget* widget, ShortcutPropagationBoundary boundary)
 {
     VERIFY(event.type() == Event::MouseDown);
-    auto shortcut = Shortcut(event.modifiers(), event.button());
     Action* action = nullptr;
 
     if (widget) {
         VERIFY(widget->window() == this);
 
         do {
-            action = widget->action_for_shortcut(shortcut);
+            action = Action::find_shortcut_action(*widget, event);
             if (action)
                 break;
 
@@ -606,9 +604,9 @@ void Window::propagate_shortcuts(MouseEvent& event, Widget* widget, ShortcutProp
     }
 
     if (!action && boundary >= ShortcutPropagationBoundary::Window)
-        action = action_for_shortcut(shortcut);
+        action = Action::find_shortcut_action(*this, event);
     if (!action && boundary >= ShortcutPropagationBoundary::Application)
-        action = Application::the()->action_for_shortcut(shortcut);
+        action = Application::the()->find_shortcut_action(event);
 
     if (action) {
         action->process_event(*this, event);
@@ -1357,11 +1355,6 @@ void Window::notify_state_changed(Badge<ConnectionToWindowServer>, bool minimize
             update();
         }
     }
-}
-
-Action* Window::action_for_shortcut(Shortcut const& shortcut)
-{
-    return Action::find_action_for_shortcut(*this, shortcut);
 }
 
 void Window::set_base_size(Gfx::IntSize base_size)
