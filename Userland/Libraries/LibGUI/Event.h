@@ -16,6 +16,7 @@
 #include <LibCore/Event.h>
 #include <LibGUI/FocusSource.h>
 #include <LibGUI/Forward.h>
+#include <LibGUI/Key.h>
 #include <LibGUI/WindowType.h>
 #include <LibGfx/Bitmap.h>
 #include <LibGfx/Point.h>
@@ -389,9 +390,9 @@ AK_ENUM_BITWISE_OPERATORS(MouseButton);
 
 class KeyEvent final : public Event {
 public:
-    KeyEvent(Type type, KeyCode key, u8 map_entry_index, u8 modifiers, u32 code_point, u32 scancode)
+    KeyEvent(Type type, KeyCode key_code, u8 map_entry_index, u8 modifiers, u32 code_point, u32 scancode)
         : Event(type)
-        , m_key(key)
+        , m_key_code(key_code)
         , m_map_entry_index(map_entry_index)
         , m_modifiers(modifiers)
         , m_code_point(code_point)
@@ -399,7 +400,8 @@ public:
     {
     }
 
-    KeyCode key() const { return m_key; }
+    Key key() const { return key_from_key_event(m_key_code, m_code_point); }
+    KeyCode key_code() const { return m_key_code; }
     bool ctrl() const { return m_modifiers & Mod_Ctrl; }
     bool alt() const { return m_modifiers & Mod_Alt; }
     bool altgr() const { return m_modifiers & Mod_AltGr; }
@@ -421,7 +423,7 @@ public:
 
     bool is_arrow_key() const
     {
-        switch (m_key) {
+        switch (m_key_code) {
         case KeyCode::Key_Up:
         case KeyCode::Key_Down:
         case KeyCode::Key_Left:
@@ -434,7 +436,7 @@ public:
 
 private:
     friend class ConnectionToWindowServer;
-    KeyCode m_key { KeyCode::Key_Invalid };
+    KeyCode m_key_code { KeyCode::Key_Invalid };
     u8 m_map_entry_index { 0 };
     u8 m_modifiers { 0 };
     u32 m_code_point { 0 };

@@ -45,7 +45,7 @@ ByteString KeyEvent::to_byte_string() const
     if (m_modifiers & Mod_Super)
         parts.append("Super");
 
-    if (auto* key_name = key_code_to_string(static_cast<KeyCode>(m_key)))
+    if (auto* key_name = key_code_to_string(static_cast<KeyCode>(m_key_code)))
         parts.append(key_name);
     else
         parts.append("(Invalid)");
