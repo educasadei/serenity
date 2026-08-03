@@ -15,15 +15,15 @@ private:
     virtual void keydown_event(GUI::KeyEvent& event) override
     {
         bool is_keypad = (event.modifiers() & Mod_Keypad) != 0;
-        outln("KeyDown: key={}, code point={:#x}, is keypad?={}, scancode={:#x}, map entry index={:#x}",
-            key_code_to_string(event.key_code()), event.code_point(), is_keypad, event.scancode(), event.map_entry_index());
+        outln("KeyDown: key={}, key code={}, code point={:#x}, is keypad?={}, scancode={:#x}, map entry index={:#x}",
+            GUI::key_to_string(event.key()), key_code_to_string(event.key_code()), event.code_point(), is_keypad, event.scancode(), event.map_entry_index());
     }
 
     virtual void keyup_event(GUI::KeyEvent& event) override
     {
         bool is_keypad = (event.modifiers() & Mod_Keypad) != 0;
-        outln("KeyUp: key={}, code point={:#x}, is keypad?={}, scancode={:#x}, map entry index={:#x}",
-            key_code_to_string(event.key_code()), event.code_point(), is_keypad, event.scancode(), event.map_entry_index());
+        outln("KeyUp: key={}, key code={}, code point={:#x}, is keypad?={}, scancode={:#x}, map entry index={:#x}",
+            GUI::key_to_string(event.key()), key_code_to_string(event.key_code()), event.code_point(), is_keypad, event.scancode(), event.map_entry_index());
     }
 
     virtual void mousemove_event(GUI::MouseEvent& event) override
