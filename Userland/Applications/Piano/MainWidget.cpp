@@ -138,7 +138,7 @@ void MainWidget::keydown_event(GUI::KeyEvent& event)
         m_keys_pressed[event.key()] = true;
 
         bool event_was_accepted = false;
-        if (note_key_action(event.key(), DSP::Keyboard::Switch::On))
+        if (note_key_action(event.key_code(), DSP::Keyboard::Switch::On))
             event_was_accepted = true;
         if (special_key_action(event.key()))
             event_was_accepted = true;
@@ -153,9 +153,9 @@ void MainWidget::keydown_event(GUI::KeyEvent& event)
 
 void MainWidget::keyup_event(GUI::KeyEvent& event)
 {
-    m_keys_pressed[event.key()] = false;
+    m_keys_pressed[event.key_code()] = false;
 
-    note_key_action(event.key(), DSP::Keyboard::Switch::Off);
+    note_key_action(event.key_code(), DSP::Keyboard::Switch::Off);
     m_keys_widget->update();
 }
 

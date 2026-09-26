@@ -515,7 +515,7 @@ void BrickGame::keydown_event(GUI::KeyEvent& event)
     }
 
     Bricks::RenderRequest render_request { Bricks::RenderRequest::SkipRender };
-    switch (event.key()) {
+    switch (event.key_code()) {
     case KeyCode::Key_A:
     case KeyCode::Key_H:
     case KeyCode::Key_Left:
