@@ -16,6 +16,7 @@
 #include <LibCore/Event.h>
 #include <LibGUI/FocusSource.h>
 #include <LibGUI/Forward.h>
+#include <LibGUI/Key.h>
 #include <LibGUI/WindowType.h>
 #include <LibGfx/Bitmap.h>
 #include <LibGfx/Point.h>
@@ -391,6 +392,7 @@ class KeyEvent final : public Event {
 public:
     KeyEvent(Type type, KeyCode key_code, u8 map_entry_index, u8 modifiers, u32 code_point, u32 scancode)
         : Event(type)
+        , m_key(key_from_key_event(key_code, code_point))
         , m_key_code(key_code)
         , m_map_entry_index(map_entry_index)
         , m_modifiers(modifiers)
@@ -399,6 +401,7 @@ public:
     {
     }
 
+    Key key() const { return m_key; }
     KeyCode key_code() const { return m_key_code; }
     bool ctrl() const { return m_modifiers & Mod_Ctrl; }
     bool alt() const { return m_modifiers & Mod_Alt; }
@@ -434,6 +437,7 @@ public:
 
 private:
     friend class ConnectionToWindowServer;
+    Key m_key { Key::Key_Invalid };
     KeyCode m_key_code { KeyCode::Key_Invalid };
     u8 m_map_entry_index { 0 };
     u8 m_modifiers { 0 };
