@@ -8,21 +8,21 @@
 #pragma once
 
 #include <AK/Traits.h>
-#include <Kernel/API/KeyCode.h>
 #include <LibGUI/Event.h>
+#include <LibGUI/Key.h>
 
 namespace GUI {
 
 class Shortcut {
 public:
     Shortcut() = default;
-    Shortcut(u8 modifiers, KeyCode key)
+    Shortcut(u8 modifiers, Key key)
         : m_type(Type::Keyboard)
         , m_modifiers(modifiers)
         , m_keyboard_key(key)
     {
     }
-    Shortcut(KeyCode key)
+    Shortcut(Key key)
         : m_type(Type::Keyboard)
         , m_modifiers(0)
         , m_keyboard_key(key)
@@ -51,7 +51,7 @@ public:
     bool is_valid() const { return m_type == Type::Keyboard ? (m_keyboard_key != Key_Invalid) : (m_mouse_button != MouseButton::None); }
     u8 modifiers() const { return m_modifiers; }
 
-    KeyCode key() const
+    Key key() const
     {
         VERIFY(m_type == Type::Keyboard);
         return m_keyboard_key;
@@ -71,7 +71,7 @@ public:
 private:
     Type m_type { Type::Keyboard };
     u8 m_modifiers { 0 };
-    KeyCode m_keyboard_key { KeyCode::Key_Invalid };
+    Key m_keyboard_key { Key::Key_Invalid };
     MouseButton m_mouse_button { MouseButton::None };
 };
 
@@ -81,7 +81,7 @@ namespace AK {
 
 template<>
 struct Traits<GUI::Shortcut> : public DefaultTraits<GUI::Shortcut> {
-    static unsigned hash(const GUI::Shortcut& shortcut)
+    static unsigned hash(GUI::Shortcut const& shortcut)
     {
         auto base_hash = pair_int_hash(shortcut.modifiers(), (u32)shortcut.type());
         if (shortcut.type() == GUI::Shortcut::Type::Keyboard) {
