@@ -6,9 +6,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "WandSelectTool.h"
 #include "../ImageEditor.h"
 #include "../Layer.h"
+#include "WandSelectTool.h"
 #include <AK/Queue.h>
 #include <LibGUI/BoxLayout.h>
 #include <LibGUI/Button.h>
@@ -43,7 +43,7 @@ static void set_flood_selection(Gfx::Bitmap& bitmap, Image& image, Gfx::IntPoint
 
 bool WandSelectTool::on_keydown(GUI::KeyEvent& key_event)
 {
-    if (key_event.key() == KeyCode::Key_Escape) {
+    if (key_event.key() == GUI::Key_Escape) {
         m_editor->image().selection().clear();
         return true;
     }

@@ -212,7 +212,7 @@ void BoardWidget::mousedown_event(GUI::MouseEvent& event)
 
 void BoardWidget::keydown_event(GUI::KeyEvent& event)
 {
-    if (event.key() == Key_Escape) {
+    if (event.key() == GUI::Key_Escape) {
         clear_selected_pattern();
         update();
         return;
@@ -305,7 +305,7 @@ void BoardWidget::clear_selected_pattern()
 void BoardWidget::setup_patterns()
 {
     auto add_pattern = [&](auto name, NonnullOwnPtr<Pattern> pattern) {
-        auto action = GUI::Action::create(name, [this, pattern = pattern.ptr()](const GUI::Action&) {
+        auto action = GUI::Action::create(name, [this, pattern = pattern.ptr()](GUI::Action const&) {
             on_pattern_selection(pattern);
         });
         pattern->set_action(action);

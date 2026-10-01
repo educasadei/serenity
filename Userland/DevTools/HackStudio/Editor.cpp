@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "Editor.h"
 #include "Debugger/Debugger.h"
+#include "Editor.h"
 #include "EditorWrapper.h"
 #include "HackStudio.h"
 #include <AK/ByteBuffer.h>
@@ -682,7 +682,7 @@ void Editor::keydown_event(GUI::KeyEvent& event)
         m_tooltip_role.clear();
     }
 
-    if (!event.shift() && !event.alt() && event.ctrl() && event.key() == KeyCode::Key_P) {
+    if (!event.shift() && !event.alt() && event.ctrl() && event.key() == GUI::Key_P) {
         handle_function_parameters_hint_request();
     }
 

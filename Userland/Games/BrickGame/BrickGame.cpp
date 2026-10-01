@@ -501,8 +501,8 @@ void BrickGame::timer_event(Core::TimerEvent&)
 void BrickGame::keydown_event(GUI::KeyEvent& event)
 {
     switch (event.key()) {
-    case KeyCode::Key_Escape:
-    case KeyCode::Key_P:
+    case GUI::Key_Escape:
+    case GUI::Key_P:
         toggle_pause();
         return;
     default:

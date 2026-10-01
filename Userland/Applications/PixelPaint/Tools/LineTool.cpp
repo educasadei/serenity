@@ -7,9 +7,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "LineTool.h"
 #include "../ImageEditor.h"
 #include "../Layer.h"
+#include "LineTool.h"
 #include <LibGUI/Action.h>
 #include <LibGUI/BoxLayout.h>
 #include <LibGUI/CheckBox.h>
@@ -110,7 +110,7 @@ void LineTool::on_second_paint(Layer const* layer, GUI::PaintEvent& event)
 
 bool LineTool::on_keydown(GUI::KeyEvent& event)
 {
-    if (event.key() == Key_Escape && m_drawing_button != GUI::MouseButton::None) {
+    if (event.key() == GUI::Key_Escape && m_drawing_button != GUI::MouseButton::None) {
         m_drawing_button = GUI::MouseButton::None;
         m_editor->update();
         return true;

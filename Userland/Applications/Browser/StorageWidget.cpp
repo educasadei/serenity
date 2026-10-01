@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "StorageWidget.h"
 #include "CookiesModel.h"
 #include "StorageModel.h"
+#include "StorageWidget.h"
 #include <Applications/Browser/StorageWidgetGML.h>
 #include <LibGUI/Menu.h>
 #include <LibGUI/TabWidget.h>
@@ -39,7 +39,7 @@ StorageWidget::StorageWidget()
     m_cookies_table_view->set_alternating_row_colors(true);
 
     auto delete_cookie_action = GUI::Action::create(
-        "&Delete Cookie", { Key_Delete }, MUST(Gfx::Bitmap::load_from_uri("resource://icons/16x16/delete.png"sv)), [&](auto const&) {
+        "&Delete Cookie", { GUI::Key_Delete }, MUST(Gfx::Bitmap::load_from_uri("resource://icons/16x16/delete.png"sv)), [&](auto const&) {
             auto cookie_index = m_cookies_table_view->selection().first();
             delete_cookie(m_cookies_model->take_cookie(cookie_index));
         },

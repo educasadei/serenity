@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "PolygonalSelectTool.h"
 #include "../ImageEditor.h"
 #include "../Layer.h"
+#include "PolygonalSelectTool.h"
 #include <AK/Queue.h>
 #include <LibGUI/BoxLayout.h>
 #include <LibGUI/Button.h>
@@ -172,7 +172,7 @@ void PolygonalSelectTool::on_second_paint(Layer const*, GUI::PaintEvent& event)
 
 bool PolygonalSelectTool::on_keydown(GUI::KeyEvent& key_event)
 {
-    if (key_event.key() == KeyCode::Key_Escape) {
+    if (key_event.key() == GUI::Key_Escape) {
         if (m_selecting) {
             m_selecting = false;
             m_polygon_points.clear();

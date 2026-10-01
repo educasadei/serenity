@@ -57,7 +57,7 @@ constexpr VerticalDirection operator!(VerticalDirection const& other)
     return VerticalDirection::Up;
 }
 
-constexpr VerticalDirection key_code_to_vertical_direction(KeyCode const& key)
+constexpr VerticalDirection key_code_to_vertical_direction(Key const& key)
 {
     if (key == Key_Up)
         return VerticalDirection::Up;

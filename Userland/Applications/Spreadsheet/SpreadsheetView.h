@@ -30,17 +30,17 @@ private:
     {
     }
 
-    static bool is_navigation(const GUI::KeyEvent& event)
+    static bool is_navigation(GUI::KeyEvent const& event)
     {
-        if (event.modifiers() == KeyModifier::Mod_Shift && event.key() == KeyCode::Key_Tab)
+        if (event.modifiers() == KeyModifier::Mod_Shift && event.key() == GUI::Key_Tab)
             return true;
 
         if (event.modifiers())
             return false;
 
         switch (event.key()) {
-        case KeyCode::Key_Tab:
-        case KeyCode::Key_Return:
+        case GUI::Key_Tab:
+        case GUI::Key_Return:
             return true;
         default:
             return false;
@@ -97,7 +97,7 @@ public:
 
     Sheet* sheet_if_available() { return m_sheet; }
 
-    const GUI::ModelIndex* cursor() const
+    GUI::ModelIndex const* cursor() const
     {
         return &m_table_view->cursor_index();
     }
@@ -142,7 +142,7 @@ private:
         }
 
         Function<void(GUI::KeyEvent&)> on_cursor_key_pressed;
-        Function<void(const GUI::ModelIndex&, const GUI::Variant&)> on_cell_focusout;
+        Function<void(GUI::ModelIndex const&, GUI::Variant const&)> on_cell_focusout;
 
     private:
         bool m_has_set_initial_value { false };
@@ -151,14 +151,14 @@ private:
 
     class TableCellPainter final : public GUI::TableCellPaintingDelegate {
     public:
-        TableCellPainter(const GUI::TableView& view)
+        TableCellPainter(GUI::TableView const& view)
             : m_table_view(view)
         {
         }
-        void paint(GUI::Painter&, Gfx::IntRect const&, Gfx::Palette const&, const GUI::ModelIndex&) override;
+        void paint(GUI::Painter&, Gfx::IntRect const&, Gfx::Palette const&, GUI::ModelIndex const&) override;
 
     private:
-        const GUI::TableView& m_table_view;
+        GUI::TableView const& m_table_view;
     };
 
     NonnullRefPtr<Sheet> m_sheet;

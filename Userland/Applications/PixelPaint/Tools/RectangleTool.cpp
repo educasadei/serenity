@@ -7,9 +7,9 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "RectangleTool.h"
 #include "../ImageEditor.h"
 #include "../Layer.h"
+#include "RectangleTool.h"
 #include <LibGUI/Action.h>
 #include <LibGUI/BoxLayout.h>
 #include <LibGUI/CheckBox.h>
@@ -132,7 +132,7 @@ void RectangleTool::on_second_paint(Layer const* layer, GUI::PaintEvent& event)
 
 bool RectangleTool::on_keydown(GUI::KeyEvent& event)
 {
-    if (event.key() == Key_Escape && m_drawing_button != GUI::MouseButton::None) {
+    if (event.key() == GUI::Key_Escape && m_drawing_button != GUI::MouseButton::None) {
         m_drawing_button = GUI::MouseButton::None;
         m_editor->update();
         return true;
